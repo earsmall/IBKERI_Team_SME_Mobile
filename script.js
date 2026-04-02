@@ -6,8 +6,8 @@ const NAVER_URLS = {
 
 const GOLD_API_BASE = "https://api.gold-api.com/price";
 const SNAPSHOT_KEY = "market_board_alt_snapshot_v1";
-const SME_SHEET_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/1R2BB-k4L6a6QwiD5nmFz-idJoIUGnhQCDzHF0ijwH4c/export?format=csv&gid=0";
+const SHEET_BASE_URL =
+  "https://docs.google.com/spreadsheets/d/1R2BB-k4L6a6QwiD5nmFz-idJoIUGnhQCDzHF0ijwH4c/gviz/tq";
 
 const marketItems = [
   { id: "govt3y", name: "국고채 3년", code: "GOVT03Y", badge: "Rate", unit: "%" },
@@ -22,6 +22,9 @@ const marketItems = [
 
 let smeData = [];
 let smeYears = [];
+let startupSeries = [];
+let smeLoadError = "";
+let startupLoadError = "";
 
 function formatClock(date = new Date()) {
   return new Intl.DateTimeFormat("ko-KR", {
@@ -44,7 +47,19 @@ function formatSmeValue(item, value) {
     return `${formatNumber(value / 10000, 1)}<span class="sme-value-unit">만개</span>`;
   }
 
+  if (item.title === "종사자수") {
+    return `${formatNumber(value / 10000, 1)}<span class="sme-value-unit">만명</span>`;
+  }
+
+  if (item.title === "매출액") {
+    return `${formatNumber(value / 1000000, 1)}<span class="sme-value-unit">조원</span>`;
+  }
+
   return `${formatNumber(value, 0)}`;
+}
+
+function formatManCount(value) {
+  return `${formatNumber(value / 10000, 1)}<span class="sme-value-unit">만개</span>`;
 }
 
 function formatTotalFootnote(item, totalValue) {
@@ -53,14 +68,54 @@ function formatTotalFootnote(item, totalValue) {
   }
 
   if (item.title === "종사자수") {
-    return `전체 ${formatNumber(totalValue, 0)}명`;
+    return `전체 ${formatNumber(totalValue / 10000, 1)}만명`;
   }
 
-  return `전체 ${formatNumber(totalValue, 0)}백만원`;
+  if (item.title === "매출액") {
+    return `전체 ${formatNumber(totalValue / 1000000, 1)}조원`;
+  }
+
+  return `전체 ${formatNumber(totalValue, 0)}`;
+}
+
+function formatStartupMetric(value, type) {
+  if (value === undefined || value === null || Number.isNaN(value)) {
+    return "-";
+  }
+
+  if (type === "share") {
+    return `${formatNumber(value, 1)}%`;
+  }
+
+  return `${formatNumber(value / 10000, 1)}<span class="sme-value-unit">만개</span>`;
+}
+
+function formatYoYGrowth(current, previous) {
+  if (
+    current === undefined ||
+    current === null ||
+    previous === undefined ||
+    previous === null ||
+    previous === 0
+  ) {
+    return "";
+  }
+
+  const growth = ((current - previous) / previous) * 100;
+  if (growth > 0) {
+    return `<span class="startup-delta is-up">(전년대비 ▲ ${formatNumber(Math.abs(growth), 1)}%)</span>`;
+  }
+  if (growth < 0) {
+    return `<span class="startup-delta is-down">(전년대비 ▼ ${formatNumber(Math.abs(growth), 1)}%)</span>`;
+  }
+  return `<span class="startup-delta">(전년대비 0.0%)</span>`;
 }
 
 function setStatus(message) {
-  document.getElementById("last-updated").textContent = `업데이트 ${formatClock()}`;
+  const status = document.getElementById("last-updated");
+  if (status) {
+    status.textContent = `업데이트 ${formatClock()}`;
+  }
 }
 
 function fetchText(url) {
@@ -83,49 +138,55 @@ function fetchJson(url) {
   });
 }
 
-function parseCsvLine(line) {
-  const cells = [];
-  let current = "";
-  let inQuotes = false;
+function mapGvizPayload(payload) {
+  const cols = payload.table?.cols ?? [];
+  const rows = payload.table?.rows ?? [];
 
-  for (let index = 0; index < line.length; index += 1) {
-    const char = line[index];
-    const nextChar = line[index + 1];
-
-    if (char === '"') {
-      if (inQuotes && nextChar === '"') {
-        current += '"';
-        index += 1;
-      } else {
-        inQuotes = !inQuotes;
-      }
-      continue;
-    }
-
-    if (char === "," && !inQuotes) {
-      cells.push(current);
-      current = "";
-      continue;
-    }
-
-    current += char;
-  }
-
-  cells.push(current);
-  return cells;
+  return rows.map((row) => {
+    const cells = row.c ?? [];
+    return cols.reduce((accumulator, col, index) => {
+      const key = col.label || col.id || `col_${index}`;
+      const cell = cells[index];
+      accumulator[key] = cell?.v ?? null;
+      return accumulator;
+    }, {});
+  });
 }
 
-function parseSmeCsv(csvText) {
-  const lines = csvText
-    .trim()
-    .split(/\r?\n/)
-    .filter(Boolean);
+function loadGoogleSheet(sheetName) {
+  return new Promise((resolve, reject) => {
+    const callbackName = `__sheetCallback_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const script = document.createElement("script");
+    const tqx = encodeURIComponent(`out:json;responseHandler:${callbackName}`);
+    const sheet = encodeURIComponent(sheetName);
 
-  if (lines.length < 2) {
-    throw new Error("중소기업 데이터가 비어 있습니다.");
-  }
+    window[callbackName] = (payload) => {
+      cleanup();
+      try {
+        resolve(mapGvizPayload(payload));
+      } catch (error) {
+        reject(error);
+      }
+    };
 
-  const rows = lines.slice(1).map(parseCsvLine);
+    script.src = `${SHEET_BASE_URL}?tqx=${tqx}&sheet=${sheet}`;
+    script.async = true;
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error(`${sheetName} 시트 로드 실패`));
+    };
+
+    function cleanup() {
+      delete window[callbackName];
+      script.remove();
+    }
+
+    document.head.appendChild(script);
+  });
+}
+
+function parseSmeRows(rows) {
   const labelConfig = {
     기업수: { unit: "개", color: "#2c7be5" },
     종사자수: { unit: "명", color: "#4a9bff" },
@@ -135,10 +196,10 @@ function parseSmeCsv(csvText) {
   const grouped = {};
 
   rows.forEach((row) => {
-    const item = (row[0] || "").trim();
-    const year = (row[2] || "").trim();
-    const total = Number(row[4]);
-    const sme = Number(row[5]);
+    const item = String(row["항목"] || "").trim();
+    const year = String(row["시점"] || "").trim();
+    const total = Number(row["전체기업"]);
+    const sme = Number(row["중소기업"]);
 
     if (!labelConfig[item] || !year || Number.isNaN(total) || Number.isNaN(sme)) {
       return;
@@ -168,6 +229,57 @@ function parseSmeCsv(csvText) {
   }
 
   return { nextData, nextYears };
+}
+
+function normalizeLabel(value) {
+  return String(value || "").replace(/\s+/g, "").trim();
+}
+
+function parseStartupRows(rows) {
+  const byYear = {};
+
+  rows.forEach((row) => {
+    const year = String(row["시점"] || "").trim();
+    const division = normalizeLabel(row["구분"] || "");
+    const startupCount = Number(row["전체 창업기업 수"]);
+    const techStartupCount = Number(row["기술기반업종 창업기업 수"]);
+
+    if (!year || (Number.isNaN(startupCount) && Number.isNaN(techStartupCount))) {
+      return;
+    }
+
+    if (!byYear[year]) {
+      byYear[year] = {};
+    }
+
+    if (!division || division.includes("전체")) {
+      byYear[year].startupCount = startupCount;
+      byYear[year].techStartupCount = techStartupCount;
+    }
+  });
+
+  const series = Object.entries(byYear)
+    .map(([year, values]) => {
+      const startupCount = values.startupCount;
+      const techStartupCount = values.techStartupCount;
+      const techShare =
+        values.techShare !== undefined
+          ? values.techShare
+          : startupCount && techStartupCount
+            ? (techStartupCount / startupCount) * 100
+            : undefined;
+
+      return {
+        year,
+        startupCount,
+        techStartupCount,
+        techShare,
+      };
+    })
+    .filter((row) => row.startupCount !== undefined || row.techStartupCount !== undefined || row.techShare !== undefined)
+    .sort((a, b) => Number(a.year) - Number(b.year));
+
+  return series;
 }
 
 function parseIndexPage(markdown, code) {
@@ -333,9 +445,10 @@ function renderSmeData() {
     document.getElementById("sme-grid").innerHTML = `
       <article class="sme-card">
         <div class="sme-title">데이터를 불러오지 못했습니다.</div>
-        <div class="sme-footnote">구글 스프레드시트 공개 설정과 시트 형식을 확인해 주세요.</div>
+        <div class="sme-footnote">${smeLoadError || "구글 스프레드시트 공개 설정과 시트 형식을 확인해 주세요."}</div>
       </article>
     `;
+    document.getElementById("sme-charts").innerHTML = "";
     return;
   }
 
@@ -372,6 +485,256 @@ function renderSmeData() {
     .join("");
 }
 
+function getFilteredSmeYears() {
+  const selectedYear =
+    document.getElementById("sme-year-select")?.value || smeYears[smeYears.length - 1];
+  const selectedIndex = smeYears.findIndex((year) => year === selectedYear);
+  if (selectedIndex < 0) {
+    return smeYears.slice(-3);
+  }
+
+  const startIndex = Math.max(0, selectedIndex - 2);
+  return smeYears.slice(startIndex, selectedIndex + 1);
+}
+
+function renderSmeCharts() {
+  const charts = document.getElementById("sme-charts");
+
+  if (!smeData.length) {
+    charts.innerHTML = "";
+    return;
+  }
+
+  const filteredYears = getFilteredSmeYears();
+
+  charts.innerHTML = smeData
+    .map((item) => {
+      const values = filteredYears.map((year) => item.years[year]?.sme ?? 0);
+      const maxValue = Math.max(...values, 1);
+
+      return `
+        <article class="startup-chart-card">
+          <div class="startup-chart-head">
+            <div class="startup-chart-title">${item.title}</div>
+            <div class="startup-chart-subtitle">선택한 기준년도를 포함한 최근 3개년</div>
+          </div>
+          <div class="startup-bars" style="--bar-count:${filteredYears.length};">
+            ${filteredYears
+              .map((year) => {
+                const value = item.years[year]?.sme ?? 0;
+                const barHeight = Math.max(8, Math.round((value / maxValue) * 150));
+                return `
+                  <div class="startup-bar-item">
+                    <div class="sme-bar-value">${formatSmeValue(item, value)}</div>
+                    <div class="startup-bar-track">
+                      <div class="startup-bar" style="height:${barHeight}px; --bar-color:${item.color};"></div>
+                    </div>
+                    <div class="startup-bar-label">${year}</div>
+                  </div>
+                `;
+              })
+              .join("")}
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderStartupSummary() {
+  const summary = document.getElementById("startup-summary");
+
+  if (!startupSeries.length) {
+    summary.innerHTML = `
+      <article class="startup-summary-card">
+        <div class="startup-value">창업 데이터를 불러오지 못했습니다.</div>
+        <div class="startup-subvalue">${startupLoadError || "구글 시트에 창업기업수와 기술기반업종 창업기업 수 데이터가 있는지 확인해 주세요."}</div>
+      </article>
+    `;
+    return;
+  }
+
+  const selectedYear =
+    document.getElementById("startup-year-select")?.value || startupSeries[startupSeries.length - 1]?.year;
+  const currentIndex = startupSeries.findIndex((item) => item.year === selectedYear);
+  const current = currentIndex >= 0 ? startupSeries[currentIndex] : startupSeries[startupSeries.length - 1];
+  const previous = currentIndex > 0 ? startupSeries[currentIndex - 1] : null;
+  const shareText = current.techShare !== undefined ? `${formatNumber(current.techShare, 1)}%` : "-";
+  const startupGrowth = formatYoYGrowth(current.startupCount, previous?.startupCount);
+  const techGrowth = formatYoYGrowth(current.techStartupCount, previous?.techStartupCount);
+
+  summary.innerHTML = `
+    <article class="startup-summary-card">
+      <div class="startup-summary-grid">
+        <div class="startup-metric">
+          <div class="startup-kicker">${current.year}년 창업기업수</div>
+          <div class="startup-value">${formatManCount(current.startupCount || 0)}${startupGrowth}</div>
+        </div>
+        <div class="startup-metric">
+          <div class="startup-kicker">${current.year}년 기술기반업종 창업기업수</div>
+          <div class="startup-value">${formatManCount(current.techStartupCount || 0)}${techGrowth}</div>
+          <div class="startup-subvalue"><span class="startup-share-label">전체 창업기업 수 대비 기술기반업종 비중</span>: <span class="startup-share-value">${shareText}</span></div>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function getFilteredStartupSeries() {
+  const selectedYear =
+    document.getElementById("startup-year-select")?.value || startupSeries[startupSeries.length - 1]?.year;
+  const selectedIndex = startupSeries.findIndex((item) => item.year === selectedYear);
+  if (selectedIndex < 0) {
+    return startupSeries;
+  }
+
+  const startIndex = Math.max(0, selectedIndex - 4);
+  return startupSeries.slice(startIndex, selectedIndex + 1);
+}
+
+function renderStartupBarChart({ title, subtitle, key, type, colorClass, colorValue }) {
+  const filteredSeries = getFilteredStartupSeries();
+
+  if (!filteredSeries.length) {
+    return "";
+  }
+
+  const values = filteredSeries.map((item) => item[key] ?? 0);
+  const maxValue = Math.max(...values, 1);
+
+  return `
+    <article class="startup-chart-card">
+      <div class="startup-chart-head">
+        <div class="startup-chart-title">${title}</div>
+        <div class="startup-chart-subtitle">${subtitle}</div>
+      </div>
+      <div class="startup-bars" style="--bar-count:${filteredSeries.length};">
+        ${filteredSeries
+          .map((item) => {
+            const value = item[key] ?? 0;
+            const barHeight = Math.max(8, Math.round((value / maxValue) * 150));
+            return `
+              <div class="startup-bar-item">
+                <div class="startup-bar-value">${formatStartupMetric(value, type)}</div>
+                <div class="startup-bar-track">
+                  <div class="startup-bar ${colorClass}" style="height:${barHeight}px; --bar-color:${colorValue};"></div>
+                </div>
+                <div class="startup-bar-label">${item.year}</div>
+              </div>
+            `;
+          })
+          .join("")}
+      </div>
+    </article>
+  `;
+}
+
+function renderStartupLineChart({ title, subtitle, key }) {
+  const filteredSeries = getFilteredStartupSeries();
+
+  if (!filteredSeries.length) {
+    return "";
+  }
+
+  const values = filteredSeries.map((item) => item[key] ?? 0);
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const range = maxValue - minValue || 1;
+  const width = 320;
+  const height = 150;
+  const paddingX = 22;
+  const paddingTop = 26;
+  const paddingBottom = 18;
+  const usableWidth = width - paddingX * 2;
+  const usableHeight = height - paddingTop - paddingBottom;
+
+  const points = filteredSeries.map((item, index) => {
+    const x =
+      filteredSeries.length === 1
+        ? width / 2
+        : paddingX + (usableWidth / (filteredSeries.length - 1)) * index;
+    const value = item[key] ?? 0;
+    const y = paddingTop + (1 - (value - minValue) / range) * usableHeight;
+    return { x, y, value, year: item.year };
+  });
+
+  const path = points
+    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
+    .join(" ");
+
+  return `
+    <article class="startup-chart-card">
+      <div class="startup-chart-head">
+        <div class="startup-chart-title">${title}</div>
+        <div class="startup-chart-subtitle">${subtitle}</div>
+      </div>
+      <div class="startup-line-chart" style="--bar-count:${filteredSeries.length};">
+        <svg class="startup-line-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">
+          <line class="startup-line-grid" x1="${paddingX}" y1="${height - paddingBottom}" x2="${width - paddingX}" y2="${height - paddingBottom}"></line>
+          <path class="startup-line-path" d="${path}"></path>
+          ${points
+            .map(
+              (point) => `
+                <text class="startup-line-value" x="${point.x}" y="${Math.max(12, point.y - 10)}">${formatNumber(point.value, 1)}%</text>
+                <circle class="startup-line-point" cx="${point.x}" cy="${point.y}" r="4"></circle>
+              `,
+            )
+            .join("")}
+        </svg>
+        <div class="startup-line-years">
+          ${points.map((point) => `<div class="startup-line-year">${point.year}</div>`).join("")}
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderStartupCharts() {
+  const charts = document.getElementById("startup-charts");
+
+  if (!startupSeries.length) {
+    charts.innerHTML = "";
+    return;
+  }
+
+  charts.innerHTML = [
+    renderStartupBarChart({
+      title: "창업기업수",
+      subtitle: "선택한 기준년도를 포함한 최근 5개년",
+      key: "startupCount",
+      type: "count",
+      colorClass: "is-blue",
+      colorValue: "#2c7be5",
+    }),
+    renderStartupBarChart({
+      title: "기술기반업종 창업기업 수",
+      subtitle: "선택한 기준년도를 포함한 최근 5개년",
+      key: "techStartupCount",
+      type: "count",
+      colorClass: "is-sky",
+      colorValue: "#59a7ff",
+    }),
+    renderStartupLineChart({
+      title: "기술기반업종 비중",
+      subtitle: "선택한 기준년도를 포함한 최근 5개년",
+      key: "techShare",
+    }),
+  ].join("");
+}
+
+function initStartupYearSelect() {
+  const select = document.getElementById("startup-year-select");
+  if (!startupSeries.length) {
+    select.innerHTML = "";
+    return;
+  }
+
+  select.innerHTML = startupSeries
+    .map((item) => `<option value="${item.year}">${item.year}</option>`)
+    .join("");
+  select.value = startupSeries[startupSeries.length - 1].year;
+}
+
 function initSmeYearSelect() {
   const yearSelect = document.getElementById("sme-year-select");
   if (!smeYears.length) {
@@ -382,22 +745,46 @@ function initSmeYearSelect() {
     .map((year) => `<option value="${year}">${year}</option>`)
     .join("");
   yearSelect.value = smeYears[smeYears.length - 1];
-  yearSelect.addEventListener("change", renderSmeData);
+  yearSelect.onchange = () => {
+    renderSmeData();
+    renderSmeCharts();
+  };
 }
 
 async function loadSmeData() {
   try {
-    const csvText = await fetchText(SME_SHEET_CSV_URL);
-    const { nextData, nextYears } = parseSmeCsv(csvText);
+    smeLoadError = "";
+    startupLoadError = "";
+    const [smeSheetRows, startupSheetRows] = await Promise.all([
+      loadGoogleSheet("위상"),
+      loadGoogleSheet("창업"),
+    ]);
+    const { nextData, nextYears } = parseSmeRows(smeSheetRows);
+    startupSeries = parseStartupRows(startupSheetRows);
     smeData = nextData;
     smeYears = nextYears;
     initSmeYearSelect();
+    initStartupYearSelect();
+    document.getElementById("startup-year-select").onchange = () => {
+      renderStartupSummary();
+      renderStartupCharts();
+    };
     renderSmeData();
+    renderSmeCharts();
+    renderStartupSummary();
+    renderStartupCharts();
   } catch (error) {
     smeData = [];
     smeYears = [];
+    startupSeries = [];
+    smeLoadError = `오류: ${error.message}`;
+    startupLoadError = `오류: ${error.message}`;
     initSmeYearSelect();
+    initStartupYearSelect();
     renderSmeData();
+    renderSmeCharts();
+    renderStartupSummary();
+    renderStartupCharts();
   }
 }
 
@@ -462,11 +849,12 @@ async function loadMarketData() {
 }
 
 function bindRefresh() {
-  document.getElementById("refresh-button").addEventListener("click", loadMarketData);
+  const button = document.getElementById("refresh-button");
+  if (button) {
+    button.addEventListener("click", loadMarketData);
+  }
 }
 
 bindTabs();
 bindRefresh();
-renderMarketList({});
 loadSmeData();
-loadMarketData();

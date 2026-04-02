@@ -19,48 +19,49 @@
           <div class="topbar">
             <div>
               <p class="brand-kicker">IBK경제연구소</p>
-              <h1>Mobile Dashboard</h1>
+              <h1>한국 중소기업 요약노트</h1>
             </div>
-          </div>
-
-          <div class="meta-row">
-            <span class="meta-pill" id="last-updated">업데이트 대기</span>
           </div>
 
           <nav class="tab-strip" aria-label="대시보드 탭">
-            <div class="tab-action-group">
-              <button class="tab-button is-active" type="button" data-tab="financial">
-                실시간 금융시장
-              </button>
-              <button
-                class="icon-refresh-button"
-                id="refresh-button"
-                type="button"
-                aria-label="실시간 금융시장 새로고침"
-                title="실시간 금융시장 새로고침"
-              ></button>
-            </div>
-            <button class="tab-button" type="button" data-tab="sme">중소기업 위상</button>
+            <button class="tab-button is-active" type="button" data-tab="sme">위상</button>
+            <button class="tab-button" type="button" data-tab="startup">창업</button>
           </nav>
         </header>
 
-        <section class="tab-panel is-active" data-panel="financial">
-          <div class="market-list" id="market-list"></div>
-        </section>
-
-        <section class="tab-panel" data-panel="sme">
+        <section class="tab-panel is-active" data-panel="sme">
           <div class="info-section">
             <div class="section-head">
               <div>
                 <h2>기업수, 종사자수, 매출액</h2>
                 <p class="section-subcopy">최근 3년 전국 전산업 중소기업 기준</p>
+                <p class="section-subcopy">자료: 중소벤처기업부 중소기업 기본통계</p>
               </div>
               <label class="year-select-wrap" for="sme-year-select">
-                <span class="year-select-label">연도</span>
+                <span class="year-select-label">기준년도</span>
                 <select id="sme-year-select" class="year-select"></select>
               </label>
             </div>
             <div class="sme-grid" id="sme-grid"></div>
+            <div class="sme-charts" id="sme-charts"></div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="startup">
+          <div class="info-section">
+            <div class="section-head">
+              <div>
+                <h2>창업기업수와 기술기반업종 비중</h2>
+                <p class="section-subcopy">최신 연도 기준 요약과 연도별 추이</p>
+                <p class="section-subcopy">자료: 중소벤처기업부 창업기업동향</p>
+              </div>
+              <label class="year-select-wrap" for="startup-year-select">
+                <span class="year-select-label">기준년도</span>
+                <select id="startup-year-select" class="year-select"></select>
+              </label>
+            </div>
+            <div class="startup-summary" id="startup-summary"></div>
+            <div class="startup-charts" id="startup-charts"></div>
           </div>
         </section>
       </section>
