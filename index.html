@@ -40,8 +40,7 @@
                 title="실시간 금융시장 새로고침"
               ></button>
             </div>
-            <button class="tab-button" type="button" data-tab="macro">거시메모</button>
-            <button class="tab-button" type="button" data-tab="sources">출처</button>
+            <button class="tab-button" type="button" data-tab="sme">중소기업 위상</button>
           </nav>
         </header>
 
@@ -49,17 +48,19 @@
           <div class="market-list" id="market-list"></div>
         </section>
 
-        <section class="tab-panel" data-panel="macro">
+        <section class="tab-panel" data-panel="sme">
           <div class="info-section">
-            <h2>연구 메모</h2>
-            <div class="note-list" id="note-list"></div>
-          </div>
-        </section>
-
-        <section class="tab-panel" data-panel="sources">
-          <div class="info-section">
-            <h2>데이터 출처</h2>
-            <ul class="source-list" id="source-list"></ul>
+            <div class="section-head">
+              <div>
+                <h2>기업수, 종사자수, 매출액</h2>
+                <p class="section-subcopy">최근 3년 전국 전산업 중소기업 기준</p>
+              </div>
+              <label class="year-select-wrap" for="sme-year-select">
+                <span class="year-select-label">연도</span>
+                <select id="sme-year-select" class="year-select"></select>
+              </label>
+            </div>
+            <div class="sme-grid" id="sme-grid"></div>
           </div>
         </section>
       </section>

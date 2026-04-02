@@ -18,48 +18,40 @@ const marketItems = [
   { id: "bitcoin", name: "비트코인", code: "BTC", badge: "Crypto", unit: "" },
 ];
 
-const notes = [
+const smeData = [
   {
-    title: "환율과 금리가 먼저 흔들리면",
-    body: "원화 약세와 국고채 금리 상승은 위험회피 심리와 물가 부담을 함께 시사할 수 있어 다른 지표보다 우선적으로 읽는 편이 좋습니다.",
+    title: "기업수",
+    unit: "개",
+    color: "#2c7be5",
+    years: {
+      "2021": { total: 7723867, sme: 7713895 },
+      "2022": { total: 8053163, sme: 8042726 },
+      "2023": { total: 8309696, sme: 8298915 },
+    },
   },
   {
-    title: "원자재와 귀금속을 같이 보는 이유",
-    body: "WTI는 인플레이션과 경기 충격을, 금과 은은 안전자산 선호와 실질금리 변화를 보여줘서 같이 놓고 보면 해석이 빨라집니다.",
+    title: "종사자수",
+    unit: "명",
+    color: "#4a9bff",
+    years: {
+      "2021": { total: 22865491, sme: 18492614 },
+      "2022": { total: 23410899, sme: 18956294 },
+      "2023": { total: 23767377, sme: 19117649 },
+    },
   },
   {
-    title: "비트코인은 위험선호 보조지표",
-    body: "전통시장 지표는 아니지만 변동성이 큰 위험자산 심리를 반영하기 때문에 KOSDAQ과 함께 보면 투자심리의 온도차를 읽기 좋습니다.",
+    title: "매출액",
+    unit: "백만원",
+    color: "#7fb8ff",
+    years: {
+      "2021": { total: 64500838, sme: 30171248 },
+      "2022": { total: 74944317, sme: 33090291 },
+      "2023": { total: 73591237, sme: 33012545 },
+    },
   },
 ];
 
-const sources = [
-  {
-    label: "네이버 증권 KOSPI 지수 페이지",
-    detail: "KOSPI 실시간 지수 및 전일비",
-    url: "https://finance.naver.com/sise/sise_index.naver?code=KOSPI",
-  },
-  {
-    label: "네이버 증권 KOSDAQ 지수 페이지",
-    detail: "KOSDAQ 실시간 지수 및 전일비",
-    url: "https://finance.naver.com/sise/sise_index.naver?code=KOSDAQ",
-  },
-  {
-    label: "네이버 증권 시장지표",
-    detail: "달러/원, WTI, 국고채 3년물",
-    url: "https://finance.naver.com/marketindex/",
-  },
-  {
-    label: "Gold API",
-    detail: "금, 은, 비트코인 실시간 가격 API",
-    url: "https://gold-api.com/",
-  },
-  {
-    label: "r.jina.ai",
-    detail: "정적 배포 환경에서 네이버 페이지 텍스트를 읽기 위한 미러",
-    url: "https://r.jina.ai/",
-  },
-];
+const smeYears = Object.keys(smeData[0].years);
 
 function formatClock(date = new Date()) {
   return new Intl.DateTimeFormat("ko-KR", {
@@ -75,6 +67,26 @@ function formatNumber(value, digits = 2) {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   }).format(value);
+}
+
+function formatSmeValue(item, value) {
+  if (item.title === "기업수") {
+    return `${formatNumber(value / 10000, 1)}<span class="sme-value-unit">만개</span>`;
+  }
+
+  return `${formatNumber(value, 0)}`;
+}
+
+function formatTotalFootnote(item, totalValue) {
+  if (item.title === "기업수") {
+    return `전체 ${formatNumber(totalValue / 10000, 1)}만개`;
+  }
+
+  if (item.title === "종사자수") {
+    return `전체 ${formatNumber(totalValue, 0)}명`;
+  }
+
+  return `전체 ${formatNumber(totalValue, 0)}백만원`;
 }
 
 function setStatus(message) {
@@ -259,33 +271,47 @@ function renderMarketList(data) {
     .join("");
 }
 
-function renderNotes() {
-  const noteList = document.getElementById("note-list");
-  noteList.innerHTML = notes
-    .map(
-      (note) => `
-        <article class="note-card">
-          <strong>${note.title}</strong>
-          <p>${note.body}</p>
+function renderSmeData() {
+  const selectedYear = document.getElementById("sme-year-select").value || smeYears[smeYears.length - 1];
+  const smeGrid = document.getElementById("sme-grid");
+
+  smeGrid.innerHTML = smeData
+    .map((item) => {
+      const currentValue = item.years[selectedYear].sme;
+      const totalValue = item.years[selectedYear].total;
+      const share = (currentValue / totalValue) * 100;
+      const fill = Math.max(6, Math.round(share));
+
+      return `
+        <article class="sme-card">
+          <div class="sme-card-header">
+            <div class="sme-title">${item.title}</div>
+          </div>
+          <div class="sme-chart-row">
+            <div class="sme-donut" style="--fill:${fill}; --donut-color:${item.color};">
+              <div class="sme-donut-inner">
+                <div class="sme-donut-percent">${formatNumber(share, 1)}%</div>
+              </div>
+            </div>
+            <div class="sme-metric-copy">
+              <div class="sme-value">${formatSmeValue(item, currentValue)}</div>
+              <span class="sme-unit"></span>
+              <div class="sme-footnote">${formatTotalFootnote(item, totalValue)}</div>
+            </div>
+          </div>
         </article>
-      `,
-    )
+      `;
+    })
     .join("");
 }
 
-function renderSources() {
-  const sourceList = document.getElementById("source-list");
-  sourceList.innerHTML = sources
-    .map(
-      (source) => `
-        <li>
-          <strong>${source.label}</strong><br />
-          ${source.detail}<br />
-          <a href="${source.url}" target="_blank" rel="noreferrer">원문 보기</a>
-        </li>
-      `,
-    )
+function initSmeYearSelect() {
+  const yearSelect = document.getElementById("sme-year-select");
+  yearSelect.innerHTML = smeYears
+    .map((year) => `<option value="${year}">${year}</option>`)
     .join("");
+  yearSelect.value = smeYears[smeYears.length - 1];
+  yearSelect.addEventListener("change", renderSmeData);
 }
 
 function bindTabs() {
@@ -352,8 +378,8 @@ function bindRefresh() {
   document.getElementById("refresh-button").addEventListener("click", loadMarketData);
 }
 
-renderNotes();
-renderSources();
+initSmeYearSelect();
+renderSmeData();
 bindTabs();
 bindRefresh();
 renderMarketList({});
