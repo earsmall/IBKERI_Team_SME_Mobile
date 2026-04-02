@@ -6,6 +6,8 @@ const NAVER_URLS = {
 
 const GOLD_API_BASE = "https://api.gold-api.com/price";
 const SNAPSHOT_KEY = "market_board_alt_snapshot_v1";
+const SME_SHEET_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/1R2BB-k4L6a6QwiD5nmFz-idJoIUGnhQCDzHF0ijwH4c/export?format=csv&gid=0";
 
 const marketItems = [
   { id: "govt3y", name: "국고채 3년", code: "GOVT03Y", badge: "Rate", unit: "%" },
@@ -18,40 +20,8 @@ const marketItems = [
   { id: "bitcoin", name: "비트코인", code: "BTC", badge: "Crypto", unit: "" },
 ];
 
-const smeData = [
-  {
-    title: "기업수",
-    unit: "개",
-    color: "#2c7be5",
-    years: {
-      "2021": { total: 7723867, sme: 7713895 },
-      "2022": { total: 8053163, sme: 8042726 },
-      "2023": { total: 8309696, sme: 8298915 },
-    },
-  },
-  {
-    title: "종사자수",
-    unit: "명",
-    color: "#4a9bff",
-    years: {
-      "2021": { total: 22865491, sme: 18492614 },
-      "2022": { total: 23410899, sme: 18956294 },
-      "2023": { total: 23767377, sme: 19117649 },
-    },
-  },
-  {
-    title: "매출액",
-    unit: "백만원",
-    color: "#7fb8ff",
-    years: {
-      "2021": { total: 64500838, sme: 30171248 },
-      "2022": { total: 74944317, sme: 33090291 },
-      "2023": { total: 73591237, sme: 33012545 },
-    },
-  },
-];
-
-const smeYears = Object.keys(smeData[0].years);
+let smeData = [];
+let smeYears = [];
 
 function formatClock(date = new Date()) {
   return new Intl.DateTimeFormat("ko-KR", {
@@ -111,6 +81,93 @@ function fetchJson(url) {
 
     return response.json();
   });
+}
+
+function parseCsvLine(line) {
+  const cells = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    const nextChar = line[index + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        current += '"';
+        index += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (char === "," && !inQuotes) {
+      cells.push(current);
+      current = "";
+      continue;
+    }
+
+    current += char;
+  }
+
+  cells.push(current);
+  return cells;
+}
+
+function parseSmeCsv(csvText) {
+  const lines = csvText
+    .trim()
+    .split(/\r?\n/)
+    .filter(Boolean);
+
+  if (lines.length < 2) {
+    throw new Error("중소기업 데이터가 비어 있습니다.");
+  }
+
+  const rows = lines.slice(1).map(parseCsvLine);
+  const labelConfig = {
+    기업수: { unit: "개", color: "#2c7be5" },
+    종사자수: { unit: "명", color: "#4a9bff" },
+    매출액: { unit: "백만원", color: "#7fb8ff" },
+  };
+
+  const grouped = {};
+
+  rows.forEach((row) => {
+    const item = (row[0] || "").trim();
+    const year = (row[2] || "").trim();
+    const total = Number(row[4]);
+    const sme = Number(row[5]);
+
+    if (!labelConfig[item] || !year || Number.isNaN(total) || Number.isNaN(sme)) {
+      return;
+    }
+
+    if (!grouped[item]) {
+      grouped[item] = {
+        title: item,
+        unit: labelConfig[item].unit,
+        color: labelConfig[item].color,
+        years: {},
+      };
+    }
+
+    grouped[item].years[year] = { total, sme };
+  });
+
+  const orderedItems = ["기업수", "종사자수", "매출액"];
+  const nextData = orderedItems
+    .map((name) => grouped[name])
+    .filter(Boolean);
+
+  const nextYears = Object.keys(nextData[0]?.years || {}).sort();
+
+  if (!nextData.length || !nextYears.length) {
+    throw new Error("중소기업 데이터를 파싱하지 못했습니다.");
+  }
+
+  return { nextData, nextYears };
 }
 
 function parseIndexPage(markdown, code) {
@@ -272,6 +329,16 @@ function renderMarketList(data) {
 }
 
 function renderSmeData() {
+  if (!smeData.length) {
+    document.getElementById("sme-grid").innerHTML = `
+      <article class="sme-card">
+        <div class="sme-title">데이터를 불러오지 못했습니다.</div>
+        <div class="sme-footnote">구글 스프레드시트 공개 설정과 시트 형식을 확인해 주세요.</div>
+      </article>
+    `;
+    return;
+  }
+
   const selectedYear = document.getElementById("sme-year-select").value || smeYears[smeYears.length - 1];
   const smeGrid = document.getElementById("sme-grid");
 
@@ -307,11 +374,31 @@ function renderSmeData() {
 
 function initSmeYearSelect() {
   const yearSelect = document.getElementById("sme-year-select");
+  if (!smeYears.length) {
+    yearSelect.innerHTML = "";
+    return;
+  }
   yearSelect.innerHTML = smeYears
     .map((year) => `<option value="${year}">${year}</option>`)
     .join("");
   yearSelect.value = smeYears[smeYears.length - 1];
   yearSelect.addEventListener("change", renderSmeData);
+}
+
+async function loadSmeData() {
+  try {
+    const csvText = await fetchText(SME_SHEET_CSV_URL);
+    const { nextData, nextYears } = parseSmeCsv(csvText);
+    smeData = nextData;
+    smeYears = nextYears;
+    initSmeYearSelect();
+    renderSmeData();
+  } catch (error) {
+    smeData = [];
+    smeYears = [];
+    initSmeYearSelect();
+    renderSmeData();
+  }
 }
 
 function bindTabs() {
@@ -378,9 +465,8 @@ function bindRefresh() {
   document.getElementById("refresh-button").addEventListener("click", loadMarketData);
 }
 
-initSmeYearSelect();
-renderSmeData();
 bindTabs();
 bindRefresh();
 renderMarketList({});
+loadSmeData();
 loadMarketData();
