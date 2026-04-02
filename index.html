@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>경제·금융 모니터</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="phone-shell">
+      <section class="app-frame">
+        <header class="app-header">
+          <div class="topbar">
+            <div>
+              <p class="brand-kicker">IBK경제연구소</p>
+              <h1>Mobile Dashboard</h1>
+            </div>
+          </div>
+
+          <div class="meta-row">
+            <span class="meta-pill" id="last-updated">업데이트 대기</span>
+          </div>
+
+          <nav class="tab-strip" aria-label="대시보드 탭">
+            <div class="tab-action-group">
+              <button class="tab-button is-active" type="button" data-tab="financial">
+                실시간 금융시장
+              </button>
+              <button
+                class="icon-refresh-button"
+                id="refresh-button"
+                type="button"
+                aria-label="실시간 금융시장 새로고침"
+                title="실시간 금융시장 새로고침"
+              ></button>
+            </div>
+            <button class="tab-button" type="button" data-tab="macro">거시메모</button>
+            <button class="tab-button" type="button" data-tab="sources">출처</button>
+          </nav>
+        </header>
+
+        <section class="tab-panel is-active" data-panel="financial">
+          <div class="market-list" id="market-list"></div>
+        </section>
+
+        <section class="tab-panel" data-panel="macro">
+          <div class="info-section">
+            <h2>연구 메모</h2>
+            <div class="note-list" id="note-list"></div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="sources">
+          <div class="info-section">
+            <h2>데이터 출처</h2>
+            <ul class="source-list" id="source-list"></ul>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
