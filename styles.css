@@ -450,6 +450,10 @@ h2 {
   color: var(--investment-accent, var(--text));
 }
 
+.investment-value--compact {
+  font-size: 21px;
+}
+
 .investment-metric .startup-subvalue,
 .investment-metric .startup-share-value {
   color: var(--investment-accent, var(--muted));
@@ -676,7 +680,7 @@ h2 {
 .investment-pie-legend-item {
   display: flex;
   align-items: center;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 6px;
   min-width: 0;
 }
@@ -699,12 +703,19 @@ h2 {
 }
 
 .investment-pie-legend-value {
-  flex: 0 1 auto;
+  flex-basis: 100%;
   min-width: 0;
   color: var(--muted);
   font-size: 10.5px;
   line-height: 1.4;
-  white-space: nowrap;
+  white-space: normal;
+  margin-left: 18px;
+}
+
+.investment-pie-legend-value--stacked {
+  flex-basis: 100%;
+  margin-left: 18px;
+  white-space: normal;
 }
 
 .export-pie-grid {

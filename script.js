@@ -1021,7 +1021,7 @@ function renderExportShareCharts() {
     { name: "기타", value: otherExportValue, color: "#94a3b8" },
   ].filter((item) => item.value !== undefined && item.value !== null && !Number.isNaN(item.value) && item.value > 0);
 
-  const buildPie = (items, total, valueFormatter) => {
+  const buildPie = (items, total, valueFormatter, stackedValue = false) => {
     const segments = [];
     let cursor = 0;
     items.forEach((item) => {
@@ -1043,7 +1043,7 @@ function renderExportShareCharts() {
                   <div class="investment-pie-legend-item">
                     <span class="investment-pie-legend-swatch" style="--legend-color:${item.color};"></span>
                     <span class="investment-pie-legend-name">${item.name}</span>
-                    <span class="investment-pie-legend-value">${valueFormatter(item.value)} (비중: ${formatNumber((item.value / total) * 100, 1)}%)</span>
+                    <span class="investment-pie-legend-value${stackedValue ? " investment-pie-legend-value--stacked" : ""}">${valueFormatter(item.value)} (비중: ${formatNumber((item.value / total) * 100, 1)}%)</span>
                   </div>
                 `,
               )
@@ -1062,7 +1062,7 @@ function renderExportShareCharts() {
       <div class="export-pie-grid">
         <div class="export-pie-section">
           <div class="startup-subvalue">전체 기업 수 대비</div>
-          ${buildPie(companyItems, companyTotal, (value) => formatExportCompanyCount(value))}
+          ${buildPie(companyItems, companyTotal, (value) => formatExportCompanyCount(value), true)}
         </div>
         <div class="export-pie-section">
           <div class="startup-subvalue">전체 수출금액 대비</div>
@@ -1833,18 +1833,18 @@ function renderInvestmentSummary() {
       <div class="startup-summary-title">&lt; 업력별 투자 &gt;</div>
       <div class="startup-summary-grid startup-summary-grid--three-col">
         <div class="startup-metric investment-metric investment-metric--blue">
-          <div class="startup-kicker investment-kicker investment-kicker--blue">초기기업(3년 이내)</div>
-          <div class="startup-value investment-value investment-value--blue">${formatEokValue(currentStage?.["초기 투자(3년 이내)"])}</div>
+          <div class="startup-kicker investment-kicker investment-kicker--blue">초기(3년 이내)</div>
+          <div class="startup-value investment-value investment-value--blue investment-value--compact">${formatEokValue(currentStage?.["초기 투자(3년 이내)"])}</div>
           ${formatInvestmentShare(currentStage?.["초기 투자(3년 이내)"], stageTotal)}
         </div>
         <div class="startup-metric investment-metric investment-metric--orange">
-          <div class="startup-kicker investment-kicker investment-kicker--orange">중기기업(3~7년 이내)</div>
-          <div class="startup-value investment-value investment-value--orange">${formatEokValue(currentStage?.["중기 투자(3~7년 이내)"])}</div>
+          <div class="startup-kicker investment-kicker investment-kicker--orange">중기(3~7년 이내)</div>
+          <div class="startup-value investment-value investment-value--orange investment-value--compact">${formatEokValue(currentStage?.["중기 투자(3~7년 이내)"])}</div>
           ${formatInvestmentShare(currentStage?.["중기 투자(3~7년 이내)"], stageTotal)}
         </div>
         <div class="startup-metric investment-metric investment-metric--violet">
-          <div class="startup-kicker investment-kicker investment-kicker--violet">후기기업(7년 초과)</div>
-          <div class="startup-value investment-value investment-value--violet">${formatEokValue(currentStage?.["후기 투자(7년 초과)"])}</div>
+          <div class="startup-kicker investment-kicker investment-kicker--violet">후기(7년 초과)</div>
+          <div class="startup-value investment-value investment-value--violet investment-value--compact">${formatEokValue(currentStage?.["후기 투자(7년 초과)"])}</div>
           ${formatInvestmentShare(currentStage?.["후기 투자(7년 초과)"], stageTotal)}
         </div>
       </div>
@@ -1856,8 +1856,8 @@ function renderInvestmentSummary() {
           .map(
             (item, index) => `
                 <div class="startup-metric investment-metric investment-metric--${index === 0 ? "blue" : index === 1 ? "orange" : "violet"}">
-                  <div class="startup-kicker investment-kicker investment-kicker--${index === 0 ? "blue" : index === 1 ? "orange" : "violet"}${item.name === "전기·기계·장비" ? " investment-kicker--compact" : ""}">Top ${index + 1} | ${item.name}</div>
-                  <div class="startup-value investment-value investment-value--${index === 0 ? "blue" : index === 1 ? "orange" : "violet"}">${formatEokValue(item.value)}</div>
+                  <div class="startup-kicker investment-kicker investment-kicker--${index === 0 ? "blue" : index === 1 ? "orange" : "violet"}${item.name === "전기·기계·장비" ? " investment-kicker--compact" : ""}">${item.name}</div>
+                  <div class="startup-value investment-value investment-value--${index === 0 ? "blue" : index === 1 ? "orange" : "violet"} investment-value--compact">${formatEokValue(item.value)}</div>
                   ${formatInvestmentShare(item.value, benchmarkTotal)}
                 </div>
             `,
