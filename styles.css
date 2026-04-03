@@ -712,6 +712,13 @@ h2 {
   margin-left: 18px;
 }
 
+.investment-pie-legend-value .sme-value-unit {
+  margin-left: 2px;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
 .investment-pie-legend-value--stacked {
   flex-basis: 100%;
   margin-left: 18px;
