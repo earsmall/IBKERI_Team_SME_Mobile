@@ -1043,7 +1043,7 @@ function renderExportShareCharts() {
                   <div class="investment-pie-legend-item">
                     <span class="investment-pie-legend-swatch" style="--legend-color:${item.color};"></span>
                     <span class="investment-pie-legend-name">${item.name}</span>
-                    <span class="investment-pie-legend-value${stackedValue ? " investment-pie-legend-value--stacked" : ""}">${valueFormatter(item.value)} (비중: ${formatNumber((item.value / total) * 100, 1)}%)</span>
+                    <span class="investment-pie-legend-value${stackedValue ? " investment-pie-legend-value--stacked" : ""}">${valueFormatter(item.value)} (${formatNumber((item.value / total) * 100, 1)}%)</span>
                   </div>
                 `,
               )
@@ -1951,7 +1951,7 @@ function renderInvestmentPieChart({ title, items, totalLabel, denominatorValue }
                 <div class="investment-pie-legend-item">
                   <span class="investment-pie-legend-swatch" style="--legend-color:${item.color};"></span>
                   <span class="investment-pie-legend-name">${item.name}</span>
-                  <span class="investment-pie-legend-value">${formatNumber(item.value, 0)}억원 (비중: ${formatNumber((item.value / baseTotal) * 100, 1)}%)</span>
+                  <span class="investment-pie-legend-value">${formatNumber(item.value, 0)}억원 (${formatNumber((item.value / baseTotal) * 100, 1)}%)</span>
                 </div>
               `,
             )
