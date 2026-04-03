@@ -2487,6 +2487,16 @@ function bindRefresh() {
   }
 }
 
+function bindPageRefresh() {
+  const button = document.getElementById("page-refresh-button");
+  if (button) {
+    button.addEventListener("click", () => {
+      window.location.reload();
+    });
+  }
+}
+
 bindTabs();
 bindRefresh();
+bindPageRefresh();
 loadSmeData();

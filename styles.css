@@ -94,6 +94,31 @@ h1 {
   letter-spacing: -0.05em;
 }
 
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-refresh-wrap {
+  display: inline-grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 6px 8px 5px;
+  border: 1px solid rgba(44, 123, 229, 0.1);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(236, 245, 255, 0.92));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 6px 16px rgba(44, 123, 229, 0.08);
+}
+
+.page-refresh-label {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1;
+}
+
 h2 {
   font-size: 18px;
   line-height: 1.2;
@@ -173,24 +198,24 @@ h2 {
 }
 
 .icon-refresh-button {
-  width: 38px;
-  height: 30px;
-  margin-top: -10px;
-  border: 1px solid rgba(18, 48, 77, 0.12);
-  border-radius: 4px;
-  background: linear-gradient(180deg, #ffffff 0%, #edf4fb 100%);
-  background-image: url("./img/re.png"), linear-gradient(180deg, #ffffff 0%, #edf4fb 100%);
+  width: 44px;
+  height: 36px;
+  margin-top: 2px;
+  border: 1px solid rgba(44, 123, 229, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  background-image: url("./img/re.png");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 18px 18px;
+  background-size: 20px 20px;
   color: #35516f;
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
   flex: 0 0 auto;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    0 3px 10px rgba(44, 123, 229, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 2px 8px rgba(44, 123, 229, 0.06);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -844,6 +869,10 @@ h2 {
   .topbar,
   .market-row {
     flex-direction: column;
+  }
+
+  .title-row {
+    align-items: flex-start;
   }
 
   .tab-strip {
