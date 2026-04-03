@@ -25,6 +25,9 @@
 
           <nav class="tab-strip" aria-label="대시보드 탭">
             <button class="tab-button is-active" type="button" data-tab="sme">위상</button>
+            <button class="tab-button" type="button" data-tab="export">수출</button>
+            <button class="tab-button" type="button" data-tab="loan">대출</button>
+            <button class="tab-button" type="button" data-tab="investment">투자</button>
             <button class="tab-button" type="button" data-tab="startup">창업</button>
           </nav>
         </header>
@@ -34,8 +37,7 @@
             <div class="section-head">
               <div>
                 <h2>기업수, 종사자수, 매출액</h2>
-                <p class="section-subcopy">최근 3년 전국 전산업 중소기업 기준</p>
-                <p class="section-subcopy">자료: 중소벤처기업부 중소기업 기본통계</p>
+                <p class="section-subcopy">자료: 중소벤처기업부 《중소기업 기본통계》</p>
               </div>
               <label class="year-select-wrap" for="sme-year-select">
                 <span class="year-select-label">기준년도</span>
@@ -52,8 +54,7 @@
             <div class="section-head">
               <div>
                 <h2>창업기업수와 기술기반업종 비중</h2>
-                <p class="section-subcopy">최신 연도 기준 요약과 연도별 추이</p>
-                <p class="section-subcopy">자료: 중소벤처기업부 창업기업동향</p>
+                <p class="section-subcopy">자료: 중소벤처기업부 《창업기업동향》</p>
               </div>
               <label class="year-select-wrap" for="startup-year-select">
                 <span class="year-select-label">기준년도</span>
@@ -62,6 +63,57 @@
             </div>
             <div class="startup-summary" id="startup-summary"></div>
             <div class="startup-charts" id="startup-charts"></div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="loan">
+          <div class="info-section">
+            <div class="section-head">
+              <div>
+                <h2>은행권 중소기업대출 및 연체율</h2>
+                <p class="section-subcopy">자료: 한국은행, 금융감독원</p>
+              </div>
+              <label class="year-select-wrap" for="loan-year-select">
+                <span class="year-select-label">기준년도</span>
+                <select id="loan-year-select" class="year-select"></select>
+              </label>
+            </div>
+            <div class="startup-summary" id="loan-summary"></div>
+            <div class="startup-charts" id="loan-charts"></div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="investment">
+          <div class="info-section">
+            <div class="section-head">
+              <div>
+                <h2>벤처투자</h2>
+                <p class="section-subcopy">자료: 중소벤처기업부, 한국벤처캐피탈협회</p>
+              </div>
+              <label class="year-select-wrap" for="investment-date-select">
+                <span class="year-select-label">기준시점</span>
+                <select id="investment-date-select" class="year-select"></select>
+              </label>
+            </div>
+            <div class="startup-summary" id="investment-summary"></div>
+            <div class="startup-charts" id="investment-charts"></div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="export">
+          <div class="info-section">
+            <div class="section-head">
+              <div>
+                <h2>중소기업 수출</h2>
+                <p class="section-subcopy">자료: 국가데이터처 《기업특성별무역통계》</p>
+              </div>
+              <label class="year-select-wrap" for="export-date-select">
+                <span class="year-select-label">기준시점</span>
+                <select id="export-date-select" class="year-select"></select>
+              </label>
+            </div>
+            <div class="startup-summary" id="export-summary"></div>
+            <div class="startup-charts" id="export-charts"></div>
           </div>
         </section>
       </section>

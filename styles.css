@@ -376,9 +376,36 @@ h2 {
   box-shadow: 0 10px 24px rgba(44, 123, 229, 0.06);
 }
 
+.startup-summary-title {
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
 .startup-summary-grid {
   display: grid;
   gap: 12px;
+}
+
+.startup-summary-grid--two-col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 14px;
+}
+
+.startup-summary-grid--three-col {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 14px;
+}
+
+.startup-summary-grid--two-col .startup-metric {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.startup-summary-grid--three-col .startup-metric {
+  padding-top: 0;
+  border-top: 0;
 }
 
 .startup-metric {
@@ -389,6 +416,10 @@ h2 {
 .startup-metric:first-child {
   padding-top: 0;
   border-top: 0;
+}
+
+.investment-metric {
+  position: relative;
 }
 
 .startup-kicker {
@@ -403,6 +434,43 @@ h2 {
   font-weight: 700;
   letter-spacing: -0.05em;
   line-height: 1.1;
+}
+
+.investment-kicker {
+  font-weight: 800;
+  color: var(--investment-accent, var(--muted));
+}
+
+.investment-kicker--compact {
+  font-size: 11px;
+  letter-spacing: -0.03em;
+}
+
+.investment-value {
+  color: var(--investment-accent, var(--text));
+}
+
+.investment-metric .startup-subvalue,
+.investment-metric .startup-share-value {
+  color: var(--investment-accent, var(--muted));
+}
+
+.investment-metric--blue,
+.investment-kicker--blue,
+.investment-value--blue {
+  --investment-accent: #2c7be5;
+}
+
+.investment-metric--orange,
+.investment-kicker--orange,
+.investment-value--orange {
+  --investment-accent: #ef7d32;
+}
+
+.investment-metric--violet,
+.investment-kicker--violet,
+.investment-value--violet {
+  --investment-accent: #7a6ff0;
 }
 
 .startup-delta {
@@ -464,7 +532,7 @@ h2 {
   gap: 10px;
   align-items: end;
   margin-top: 16px;
-  min-height: 190px;
+  min-height: 152px;
 }
 
 .startup-bar-item {
@@ -483,7 +551,7 @@ h2 {
 }
 
 .startup-bar-track {
-  height: 150px;
+  height: 120px;
   display: flex;
   align-items: end;
   justify-content: center;
@@ -558,6 +626,97 @@ h2 {
   font-size: 11px;
   font-weight: 700;
   text-align: center;
+}
+
+.loan-line-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.loan-line-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted-strong);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.loan-line-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--legend-color, #2c7be5);
+}
+
+.investment-pie-layout {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.investment-pie {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: conic-gradient(var(--pie-fill));
+  box-shadow: inset 0 0 0 1px rgba(44, 123, 229, 0.06);
+}
+
+.investment-pie-legend {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.investment-pie-legend-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.investment-pie-legend-swatch {
+  width: 12px;
+  height: 12px;
+  margin-top: 3px;
+  border-radius: 999px;
+  background: var(--legend-color, #2c7be5);
+}
+
+.investment-pie-legend-name {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.investment-pie-legend-value {
+  flex: 0 1 auto;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.export-pie-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.export-pie-section {
+  display: grid;
+  gap: 8px;
 }
 
 .sme-card {
@@ -677,6 +836,23 @@ h2 {
   .sme-chart-row {
     grid-template-columns: 1fr;
     flex-direction: column;
+  }
+
+  .startup-summary-grid--two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .startup-summary-grid--three-col {
+    grid-template-columns: 1fr;
+  }
+
+  .investment-pie-layout {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .export-pie-grid {
+    grid-template-columns: 1fr;
   }
 
   .market-right {
