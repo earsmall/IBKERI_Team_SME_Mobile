@@ -1663,6 +1663,15 @@ function formatQuarterPeriod(key) {
   return `${stringKey.slice(0, 4)}년 ${Number(stringKey.slice(4, 6))}분기`;
 }
 
+function formatQuarterCardPeriod(key) {
+  const stringKey = String(key || "");
+  if (!/^\d{6}$/.test(stringKey)) {
+    return stringKey || "-";
+  }
+
+  return `${stringKey.slice(0, 4)}.Q${Number(stringKey.slice(4, 6))}`;
+}
+
 function formatQuarterAxisLabel(key, isLatest = false) {
   const stringKey = String(key || "");
   if (!/^\d{6}$/.test(stringKey)) {
@@ -1723,6 +1732,29 @@ function formatProductionYoYGrowth(current, previous) {
     return `<span class="startup-delta is-down">(전년동기대비 ▼ ${formatNumber(Math.abs(growth), 1)}%)</span>`;
   }
   return `<span class="startup-delta">(전년동기대비 0.0%)</span>`;
+}
+
+function formatOperationRateDelta(current, previous) {
+  if (
+    current === undefined ||
+    current === null ||
+    Number.isNaN(current) ||
+    previous === undefined ||
+    previous === null ||
+    Number.isNaN(previous) ||
+    previous === 0
+  ) {
+    return "";
+  }
+
+  const growth = ((current - previous) / previous) * 100;
+  if (growth > 0) {
+    return `<span class="startup-delta is-up">(전년동월대비 ▲ ${formatNumber(Math.abs(growth), 1)}%)</span>`;
+  }
+  if (growth < 0) {
+    return `<span class="startup-delta is-down">(전년동월대비 ▼ ${formatNumber(Math.abs(growth), 1)}%)</span>`;
+  }
+  return `<span class="startup-delta">(전년동월대비 0.0%)</span>`;
 }
 
 function formatRateDelta(current, previous) {
@@ -3334,6 +3366,16 @@ function getOperationRateChartSeries() {
   return operationRateSeries.filter((item) => Number(item.key.slice(0, 4)) >= startYear);
 }
 
+function getPreviousYearOperationRecord(key) {
+  const stringKey = String(key || "");
+  if (!/^\d{6}$/.test(stringKey)) {
+    return null;
+  }
+
+  const previousYearKey = `${Number(stringKey.slice(0, 4)) - 1}${stringKey.slice(4, 6)}`;
+  return operationRateSeries.find((item) => item.key === previousYearKey) || null;
+}
+
 function getFeelingChartSeries() {
   if (!feelingActualSeries.length) {
     return [];
@@ -3726,11 +3768,11 @@ function renderProductionSummary() {
     <article class="startup-summary-card">
       <div class="startup-summary-grid startup-summary-grid--two-col">
         <div class="startup-metric">
-          <div class="startup-kicker">${formatQuarterPeriod(current?.key)} 제조업 생산지수</div>
+          <div class="startup-kicker">${formatQuarterCardPeriod(current?.key)} 제조업 생산지수</div>
           <div class="startup-value">${formatProductionValue(current?.value, current?.unit)}${formatProductionYoYGrowth(current?.value, previousYear?.value)}</div>
         </div>
         <div class="startup-metric">
-          <div class="startup-kicker">${formatQuarterPeriod(currentService?.key)} 서비스업 생산지수</div>
+          <div class="startup-kicker">${formatQuarterCardPeriod(currentService?.key)} 서비스업 생산지수</div>
           <div class="startup-value">${formatProductionValue(currentService?.value, currentService?.unit)}${formatProductionYoYGrowth(currentService?.value, previousServiceYear?.value)}</div>
         </div>
       </div>
@@ -3872,13 +3914,14 @@ function renderOperationSummary() {
   }
 
   const current = operationRateSeries[operationRateSeries.length - 1];
+  const previousYear = getPreviousYearOperationRecord(current?.key);
 
   summary.innerHTML = `
     <article class="startup-summary-card">
       <div class="startup-summary-grid">
         <div class="startup-metric">
           <div class="startup-kicker">${formatBusinessPeriod(current?.key)} 중소제조업 평균가동률(제조업 계절조정)</div>
-          <div class="startup-value">${formatProductionValue(current?.value, current?.unit)}</div>
+          <div class="startup-value">${formatProductionValue(current?.value, current?.unit)}${formatOperationRateDelta(current?.value, previousYear?.value)}</div>
         </div>
       </div>
     </article>
