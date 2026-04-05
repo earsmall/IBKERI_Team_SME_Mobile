@@ -169,6 +169,19 @@ function formatSmeValue(item, value) {
   return `${formatNumber(value, 0)}`;
 }
 
+function getSmeDisplayLabel(title) {
+  if (title === "기업수") {
+    return "중소기업 수";
+  }
+  if (title === "종사자수") {
+    return "중소기업 종사자수";
+  }
+  if (title === "매출액") {
+    return "중소기업 매출액";
+  }
+  return title;
+}
+
 function formatManCount(value) {
   return `${formatNumber(value / 10000, 1)}<span class="sme-value-unit">만개</span>`;
 }
@@ -2694,6 +2707,7 @@ function renderSmeData() {
 
   smeGrid.innerHTML = smeData
     .map((item) => {
+      const displayLabel = getSmeDisplayLabel(item.title);
       const current = item.years[selectedYear]?.[selectedIndustry];
       const previous = previousYear ? item.years[previousYear]?.[selectedIndustry] : null;
       const currentValue = current?.sme;
@@ -2743,7 +2757,6 @@ function renderSmeData() {
           <div class="section-head section-head-secondary">
             <div>
               <h2>${item.title}</h2>
-              <p class="section-subcopy">자료: 중소벤처기업부 《중소기업 기본통계》</p>
             </div>
             <div class="section-head-actions section-head-actions--inline">
               <span class="inline-select-label">기준년도</span>
@@ -2761,7 +2774,7 @@ function renderSmeData() {
           <div class="startup-summary">
             <article class="startup-summary-card">
               <div class="sme-card-header">
-                <div class="sme-title">${selectedYear} ${selectedIndustry} 중소기업</div>
+                <div class="sme-title">${selectedYear} ${displayLabel}</div>
               </div>
               <div class="sme-chart-row">
                 <div class="sme-donut" style="--fill:${fill}; --donut-color:${item.color};">
@@ -2798,7 +2811,7 @@ function renderSmeData() {
           <div class="startup-charts">
             <article class="startup-chart-card">
               <div class="startup-chart-head">
-                <div class="startup-chart-title">${item.title} 최근 3년 추이</div>
+                <div class="startup-chart-title">${displayLabel}(최근 3년)</div>
               </div>
               <div class="startup-bars" style="--bar-count:${filteredYears.length || 1};">
                 ${filteredYears
@@ -2818,7 +2831,7 @@ function renderSmeData() {
                   .join("")}
               </div>
               <div class="sme-share-chart">
-                <div class="sme-share-chart-title">${item.title} 중소기업 비중</div>
+                <div class="sme-share-chart-title">${displayLabel} 비중</div>
                 <svg class="sme-share-svg" viewBox="0 0 ${shareWidth} ${shareHeight}" preserveAspectRatio="none" aria-hidden="true" style="--share-line-color:${item.color};">
                   ${sharePath ? `<path class="sme-share-line" d="${sharePath}"></path>` : ""}
                   ${sharePoints

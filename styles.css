@@ -253,6 +253,10 @@ h2 {
   line-height: 1.45;
 }
 
+.section-subcopy--center {
+  text-align: center;
+}
+
 .refresh-button,
 .meta-pill,
 .tab-button {
