@@ -1371,7 +1371,7 @@ async function loadFeelingActualData() {
 
 async function loadFeelingOutlookData() {
   return loadFeelingSeries({
-    url: `${FEELING_OUTLOOK_API_URL_BASE}&objL2=13102134488BSI_CD.${getFeelingSelectedOption().code}`,
+    url: `${FEELING_OUTLOOK_API_URL_BASE}&objL2=ALL`,
     cacheKey: FEELING_OUTLOOK_CACHE_KEY,
   });
 }
@@ -2492,7 +2492,7 @@ function renderExportShareLineChart({ title, points, valueKey, totalKey, colorVa
   const path = plotted.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
 
   return `
-    <article class="startup-chart-card">
+    <article class="startup-chart-card business-chart-card">
       <div class="startup-chart-head">
         <div class="startup-chart-title">${title}</div>
       </div>
@@ -2791,7 +2791,7 @@ function renderSmeData() {
               <h2>${item.title}</h2>
             </div>
             <div class="section-head-actions section-head-actions--inline">
-              <span class="inline-select-label">기준년도</span>
+              <span class="inline-select-label">기준시점</span>
               <select class="year-select sme-year-select-instance">
                 ${smeYears
                   .map((year) => `<option value="${year}"${year === selectedYear ? " selected" : ""}>${year}</option>`)
@@ -4478,6 +4478,9 @@ async function refreshManagementData() {
 
 function renderLoanSummary() {
   const summary = document.getElementById("loan-summary");
+  if (!summary) {
+    return;
+  }
 
   if (!loanSeries.length && !delinquencySeries.length) {
     summary.innerHTML = `
@@ -4504,6 +4507,10 @@ function renderLoanSummary() {
   const corporateDelta = formatRateDelta(latestDelinquency?.corporateRate, previousDelinquency?.corporateRate);
   const solePropDelta = formatRateDelta(latestDelinquency?.solePropRate, previousDelinquency?.solePropRate);
   const delinquencyDateLabel = latestDelinquency?.date ? formatYearMonth(latestDelinquency.date) : "-";
+  const loanBalanceYears = getRecentLoanBalancePoints();
+  const loanNetIncreaseYears = getRecentLoanNetIncreasePoints();
+  const loanNetIncreaseLatestMonthYears = getRecentLoanNetIncreaseLatestMonthPoints();
+  const delinquencyPoints = getFilteredDelinquencySeries(5);
 
   summary.innerHTML = `
     <article class="startup-summary-card">
@@ -4518,6 +4525,33 @@ function renderLoanSummary() {
         </div>
       </div>
     </article>
+    ${renderLoanBarChart({
+      title: "은행권 중소기업대출잔액",
+      labelMode: "mixed",
+      points: loanBalanceYears,
+      valueKey: "balance",
+      colorValue: "#2c7be5",
+    })}
+    ${renderLoanBarChart({
+      title: "은행권 중소기업대출 순증(연말 기준)",
+      labelMode: "year-end",
+      points: loanNetIncreaseYears,
+      valueKey: "netIncrease",
+      colorValue: "#59a7ff",
+    })}
+    ${renderLoanBarChart({
+      title: "은행권 중소기업대출 순증(최근월 기준)",
+      labelMode: "recent-month",
+      points: loanNetIncreaseLatestMonthYears,
+      valueKey: "netIncrease",
+      colorValue: "#88c2ff",
+    })}
+    <div class="section-head section-head-secondary">
+      <div>
+        <h2>연체율</h2>
+        <p class="section-subcopy">자료: 금융감독원</p>
+      </div>
+    </div>
     <article class="startup-summary-card">
       <div class="startup-summary-grid">
         <div class="startup-metric">
@@ -4534,6 +4568,15 @@ function renderLoanSummary() {
         </div>
       </div>
     </article>
+    ${renderLoanLineChart({
+      title: "중소기업대출 연체율",
+      points: delinquencyPoints,
+      seriesConfig: [
+        { key: "smeRate", label: "중소기업", color: "#ff675f" },
+        { key: "corporateRate", label: "중소법인", color: "#ff7b63" },
+        { key: "solePropRate", label: "개인사업자", color: "#ffb347" },
+      ],
+    })}
   `;
 }
 
@@ -4682,58 +4725,9 @@ function renderLoanLineChart({ title, seriesConfig, points }) {
 
 function renderLoanCharts() {
   const charts = document.getElementById("loan-charts");
-
-  if (!loanSeries.length && !delinquencySeries.length) {
+  if (charts) {
     charts.innerHTML = "";
-    return;
   }
-
-  const loanBalanceYears = getRecentLoanBalancePoints();
-  const loanNetIncreaseYears = getRecentLoanNetIncreasePoints();
-  const loanNetIncreaseLatestMonthYears = getRecentLoanNetIncreaseLatestMonthPoints();
-  const delinquencyPoints = getFilteredDelinquencySeries(5);
-
-  charts.innerHTML = [
-    renderLoanBarChart({
-      title: "은행권 중소기업대출잔액",
-      labelMode: "mixed",
-      points: loanBalanceYears,
-      valueKey: "balance",
-      colorValue: "#2c7be5",
-    }),
-    renderLoanBarChart({
-      title: "은행권 중소기업대출 순증",
-      labelMode: "year-end",
-      points: loanNetIncreaseYears,
-      valueKey: "netIncrease",
-      colorValue: "#59a7ff",
-    }),
-    renderLoanBarChart({
-      title: "은행권 중소기업대출 순증",
-      labelMode: "recent-month",
-      points: loanNetIncreaseLatestMonthYears,
-      valueKey: "netIncrease",
-      colorValue: "#88c2ff",
-    }),
-    renderLoanLineChart({
-      title: "중소기업대출 연체율",
-      points: delinquencyPoints,
-      seriesConfig: [
-        { key: "smeRate", label: "중소기업", color: "#ff675f" },
-        { key: "largeCompanyRate", label: "대기업", color: "#7fb8ff" },
-      ],
-    }),
-    renderLoanLineChart({
-      title: "중소기업대출 연체율: 중소법인 vs 개인사업자",
-      points: delinquencyPoints,
-      seriesConfig: [
-        { key: "corporateRate", label: "중소법인", color: "#ff7b63" },
-        { key: "solePropRate", label: "개인사업자", color: "#ffb347" },
-      ],
-    }),
-  ]
-    .filter(Boolean)
-    .join("");
 }
 
 function renderInvestmentSummary() {
@@ -4776,6 +4770,7 @@ function renderInvestmentSummary() {
     .filter((item) => item.value !== undefined && item.value !== null && !Number.isNaN(item.value))
     .sort((a, b) => b.value - a.value)
     .slice(0, 3);
+  const overviewRecent = getRecentInvestmentSeries(investmentSeries, 3);
 
   summary.innerHTML = `
     <article class="startup-summary-card">
@@ -4794,6 +4789,25 @@ function renderInvestmentSummary() {
         </div>
       </div>
     </article>
+    ${renderInvestmentBarChart({
+      title: "신규 벤처투자금액",
+      points: overviewRecent,
+      key: "신규 벤처투자금액",
+      colorValue: "#2c7be5",
+    })}
+    ${renderInvestmentBarChart({
+      title: "벤처펀드 결성금액",
+      points: overviewRecent,
+      key: "벤처펀드 결정금액",
+      colorValue: "#59a7ff",
+    })}
+    ${renderInvestmentBarChart({
+      title: "벤처펀드 결성 수",
+      points: overviewRecent,
+      key: "벤처펀드 결성 수",
+      type: "count",
+      colorValue: "#8bd3ff",
+    })}
     <article class="startup-summary-card">
       <div class="startup-summary-title">&lt; 업력별 투자 &gt;</div>
       <div class="startup-summary-grid startup-summary-grid--three-col">
@@ -4814,6 +4828,16 @@ function renderInvestmentSummary() {
         </div>
       </div>
     </article>
+    ${renderInvestmentPieChart({
+      title: "업력별 투자 비중",
+      totalLabel: "신규 벤처투자금액 기준",
+      denominatorValue: benchmarkTotal,
+      items: [
+        { name: "초기 투자(3년 이내)", value: currentStage?.["초기 투자(3년 이내)"], color: "#2c7be5" },
+        { name: "중기 투자(3~7년 이내)", value: currentStage?.["중기 투자(3~7년 이내)"], color: "#59a7ff" },
+        { name: "후기 투자(7년 초과)", value: currentStage?.["후기 투자(7년 초과)"], color: "#8bd3ff" },
+      ],
+    })}
     <article class="startup-summary-card">
       <div class="startup-summary-title">&lt; 업종별 투자 &gt;</div>
       <div class="startup-summary-grid startup-summary-grid--three-col">
@@ -4830,6 +4854,22 @@ function renderInvestmentSummary() {
           .join("")}
       </div>
     </article>
+    ${renderInvestmentPieChart({
+      title: "업종별 투자 비중",
+      totalLabel: "신규 벤처투자금액 기준",
+      denominatorValue: benchmarkTotal,
+      items: [
+        { name: "ICT서비스", value: currentSector?.["ICT서비스"], color: "#2c7be5" },
+        { name: "바이오·의료", value: currentSector?.["바이오·의료"], color: "#59a7ff" },
+        { name: "전기·기계·장비", value: currentSector?.["전기·기계·장비"], color: "#8bd3ff" },
+        { name: "ICT제조", value: currentSector?.["ICT제조"], color: "#ff7b63" },
+        { name: "유통·서비스", value: currentSector?.["유통·서비스"], color: "#ff9c73" },
+        { name: "화학·소재", value: currentSector?.["화학·소재"], color: "#ffc857" },
+        { name: "영상·공연·음반", value: currentSector?.["영상·공연·음반"], color: "#9c89ff" },
+        { name: "게임", value: currentSector?.게임, color: "#7a6ff0" },
+        { name: "기타", value: currentSector?.기타, color: "#94a3b8" },
+      ],
+    })}
     <article class="startup-summary-card">
       <div class="startup-summary-title">&lt; 출자자별 출자금액 &gt;</div>
       <div class="startup-summary-grid startup-summary-grid--two-col">
@@ -4845,6 +4885,30 @@ function renderInvestmentSummary() {
         </div>
       </div>
     </article>
+    ${renderInvestmentPieChart({
+      title: "정책금융 출자 비중",
+      totalLabel: "신규 벤처투자금액 기준",
+      denominatorValue: currentSource?.정책금융,
+      items: [
+        { name: "모태펀드", value: currentSource?.모태펀드, color: "#2c7be5" },
+        { name: "성장금융", value: currentSource?.성장금융, color: "#59a7ff" },
+        { name: "산업은행", value: currentSource?.산업은행, color: "#8bd3ff" },
+        { name: "기타 정책금융", value: currentSource?.["기타 정책금융"], color: "#b8e4ff" },
+      ],
+    })}
+    ${renderInvestmentPieChart({
+      title: "민간부문 출자 비중",
+      totalLabel: "신규 벤처투자금액 기준",
+      denominatorValue: benchmarkTotal,
+      items: [
+        { name: "개인", value: currentSource?.개인, color: "#ff7b63" },
+        { name: "일반법인", value: currentSource?.일반법인, color: "#ff9c73" },
+        { name: "금융기관(산은 제외)", value: currentSource?.["금융기관(산은 제외)"], color: "#ffc857" },
+        { name: "연기금 및 공제회", value: currentSource?.["연기금 및 공제회"], color: "#9c89ff" },
+        { name: "VC", value: currentSource?.VC, color: "#7a6ff0" },
+        { name: "기타단체 및 외국인", value: currentSource?.["기타단체 및 외국인"], color: "#94a3b8" },
+      ],
+    })}
   `;
 }
 
@@ -4929,83 +4993,7 @@ function renderInvestmentPieChart({ title, items, totalLabel, denominatorValue }
 
 function renderInvestmentCharts() {
   const charts = document.getElementById("investment-charts");
-
-  if (!investmentSeries.length) {
-    charts.innerHTML = "";
-    return;
-  }
-
-  const currentStage = getInvestmentRecord(investmentStageSeries);
-  const currentSector = getInvestmentRecord(investmentSectorSeries);
-  const currentSource = getInvestmentRecord(investmentSourceSeries);
-  const overviewRecent = getRecentInvestmentSeries(investmentSeries, 3);
-  const currentOverview = getInvestmentRecord(investmentSeries);
-  const benchmarkTotal = currentOverview?.["신규 벤처투자금액"] ?? 0;
-
-  charts.innerHTML = [
-    renderInvestmentBarChart({
-      title: "신규 벤처투자금액",
-      points: overviewRecent,
-      key: "신규 벤처투자금액",
-      colorValue: "#2c7be5",
-    }),
-    renderInvestmentBarChart({
-      title: "벤처펀드 결성금액",
-      points: overviewRecent,
-      key: "벤처펀드 결정금액",
-      colorValue: "#59a7ff",
-    }),
-    renderInvestmentPieChart({
-      title: "업력별 투자 비중",
-      totalLabel: "신규 벤처투자금액 기준",
-      denominatorValue: benchmarkTotal,
-      items: [
-        { name: "초기 투자(3년 이내)", value: currentStage?.["초기 투자(3년 이내)"], color: "#2c7be5" },
-        { name: "중기 투자(3~7년 이내)", value: currentStage?.["중기 투자(3~7년 이내)"], color: "#59a7ff" },
-        { name: "후기 투자(7년 초과)", value: currentStage?.["후기 투자(7년 초과)"], color: "#8bd3ff" },
-      ],
-    }),
-    renderInvestmentPieChart({
-      title: "업종별 투자 비중",
-      totalLabel: "신규 벤처투자금액 기준",
-      denominatorValue: benchmarkTotal,
-      items: [
-        { name: "ICT서비스", value: currentSector?.["ICT서비스"], color: "#2c7be5" },
-        { name: "바이오·의료", value: currentSector?.["바이오·의료"], color: "#59a7ff" },
-        { name: "전기·기계·장비", value: currentSector?.["전기·기계·장비"], color: "#8bd3ff" },
-        { name: "ICT제조", value: currentSector?.["ICT제조"], color: "#ff7b63" },
-        { name: "유통·서비스", value: currentSector?.["유통·서비스"], color: "#ff9c73" },
-        { name: "화학·소재", value: currentSector?.["화학·소재"], color: "#ffc857" },
-        { name: "영상·공연·음반", value: currentSector?.["영상·공연·음반"], color: "#9c89ff" },
-        { name: "게임", value: currentSector?.게임, color: "#7a6ff0" },
-        { name: "기타", value: currentSector?.기타, color: "#94a3b8" },
-      ],
-    }),
-    renderInvestmentPieChart({
-      title: "정책금융 출자 비중",
-      totalLabel: "신규 벤처투자금액 기준",
-      denominatorValue: currentSource?.정책금융,
-      items: [
-        { name: "모태펀드", value: currentSource?.모태펀드, color: "#2c7be5" },
-        { name: "성장금융", value: currentSource?.성장금융, color: "#59a7ff" },
-        { name: "산업은행", value: currentSource?.산업은행, color: "#8bd3ff" },
-        { name: "기타 정책금융", value: currentSource?.["기타 정책금융"], color: "#b8e4ff" },
-      ],
-    }),
-    renderInvestmentPieChart({
-      title: "민간부문 출자 비중",
-      totalLabel: "신규 벤처투자금액 기준",
-      denominatorValue: benchmarkTotal,
-      items: [
-        { name: "개인", value: currentSource?.개인, color: "#ff7b63" },
-        { name: "일반법인", value: currentSource?.일반법인, color: "#ff9c73" },
-        { name: "금융기관(산은 제외)", value: currentSource?.["금융기관(산은 제외)"], color: "#ffc857" },
-        { name: "연기금 및 공제회", value: currentSource?.["연기금 및 공제회"], color: "#9c89ff" },
-        { name: "VC", value: currentSource?.VC, color: "#7a6ff0" },
-        { name: "기타단체 및 외국인", value: currentSource?.["기타단체 및 외국인"], color: "#94a3b8" },
-      ],
-    }),
-  ].join("");
+  charts.innerHTML = "";
 }
 
 function renderExportSummary() {
@@ -5119,7 +5107,6 @@ function renderExportSummary() {
     <div class="section-head section-head-secondary">
       <div>
         <h2>중소기업 주요 수출국</h2>
-        <p class="section-subcopy">자료: 국가데이터처<br />《기업특성별무역통계》</p>
       </div>
     </div>
     <article class="startup-summary-card">

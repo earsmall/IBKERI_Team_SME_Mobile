@@ -72,18 +72,13 @@
 
         <section class="tab-panel" data-panel="startup">
           <div class="info-section">
-            <div class="section-head">
-              <div>
-                <h2>연간 창업</h2>
-                <p class="section-subcopy">자료: 중소벤처기업부<br />《창업기업동향》</p>
-              </div>
-              <div class="section-head-actions section-head-actions--inline">
-                <span class="inline-select-label">기준년도</span>
-                <select id="startup-year-select" class="year-select"></select>
-                <div class="page-refresh-wrap section-refresh-wrap">
-                  <button class="icon-refresh-button section-refresh-button" id="startup-refresh-button" type="button">새로고침</button>
-                  <div class="page-refresh-label">(새로고침)</div>
-                </div>
+            <p class="section-subcopy section-subcopy--center">자료: 중소벤처기업부 《창업기업동향》</p>
+            <div class="section-head-actions section-head-actions--inline section-head-actions--center">
+              <span class="inline-select-label">기준시점</span>
+              <select id="startup-year-select" class="year-select"></select>
+              <div class="page-refresh-wrap section-refresh-wrap">
+                <button class="icon-refresh-button section-refresh-button" id="startup-refresh-button" type="button">새로고침</button>
+                <div class="page-refresh-label">(새로고침)</div>
               </div>
             </div>
             <div class="startup-summary" id="startup-summary"></div>
@@ -155,18 +150,18 @@
 
         <section class="tab-panel" data-panel="management">
           <div class="info-section">
+            <p class="section-subcopy section-subcopy--center">자료: 한국은행 《기업경영분석》</p>
+            <div class="section-head-actions section-head-actions--inline section-head-actions--center">
+              <span class="inline-select-label">기준시점</span>
+              <select id="management-year-select" class="year-select"></select>
+              <div class="page-refresh-wrap section-refresh-wrap">
+                <button class="icon-refresh-button section-refresh-button" id="management-refresh-button" type="button">새로고침</button>
+                <div class="page-refresh-label">(새로고침)</div>
+              </div>
+            </div>
             <div class="section-head">
               <div>
                 <h2>성장성 지표: 매출액 증가율</h2>
-                <p class="section-subcopy">자료: 한국은행 《기업경영분석》</p>
-              </div>
-              <div class="section-head-actions section-head-actions--inline">
-                <span class="inline-select-label">기준연도</span>
-                <select id="management-year-select" class="year-select"></select>
-                <div class="page-refresh-wrap section-refresh-wrap">
-                  <button class="icon-refresh-button section-refresh-button" id="management-refresh-button" type="button">새로고침</button>
-                  <div class="page-refresh-label">(새로고침)</div>
-                </div>
               </div>
             </div>
             <div class="startup-summary" id="management-summary"></div>
@@ -174,7 +169,6 @@
             <div class="section-head section-head-secondary">
               <div>
                 <h2>수익성 지표: 매출액영업이익률</h2>
-                <p class="section-subcopy">자료: 한국은행 《기업경영분석》</p>
               </div>
             </div>
             <div class="startup-summary" id="management-profit-summary"></div>
@@ -182,7 +176,6 @@
             <div class="section-head section-head-secondary">
               <div>
                 <h2>안정성 지표: 부채비율</h2>
-                <p class="section-subcopy">자료: 한국은행 《기업경영분석》</p>
               </div>
             </div>
             <div class="startup-summary" id="management-stability-summary"></div>
@@ -192,18 +185,18 @@
 
         <section class="tab-panel" data-panel="loan">
           <div class="info-section">
+            <div class="section-head-actions section-head-actions--inline section-head-actions--center">
+              <span class="inline-select-label">기준시점</span>
+              <select id="loan-year-select" class="year-select"></select>
+              <div class="page-refresh-wrap section-refresh-wrap">
+                <button class="icon-refresh-button section-refresh-button" id="loan-refresh-button" type="button">새로고침</button>
+                <div class="page-refresh-label">(새로고침)</div>
+              </div>
+            </div>
             <div class="section-head">
               <div>
-                <h2>은행권 중소기업대출 및 연체율</h2>
-                <p class="section-subcopy">자료: 한국은행, 금융감독원</p>
-              </div>
-              <div class="section-head-actions section-head-actions--inline">
-                <span class="inline-select-label">기준년도</span>
-                <select id="loan-year-select" class="year-select"></select>
-                <div class="page-refresh-wrap section-refresh-wrap">
-                  <button class="icon-refresh-button section-refresh-button" id="loan-refresh-button" type="button">새로고침</button>
-                  <div class="page-refresh-label">(새로고침)</div>
-                </div>
+                <h2>은행권 중소기업대출</h2>
+                <p class="section-subcopy">자료: 한국은행</p>
               </div>
             </div>
             <div class="startup-summary" id="loan-summary"></div>
@@ -213,18 +206,18 @@
 
         <section class="tab-panel" data-panel="investment">
           <div class="info-section">
+            <p class="section-subcopy section-subcopy--center">자료: 중소벤처기업부, 한국벤처캐피탈협회</p>
+            <div class="section-head-actions section-head-actions--inline section-head-actions--center">
+              <span class="inline-select-label">기준시점</span>
+              <select id="investment-date-select" class="year-select"></select>
+              <div class="page-refresh-wrap section-refresh-wrap">
+                <button class="icon-refresh-button section-refresh-button" id="investment-refresh-button" type="button">새로고침</button>
+                <div class="page-refresh-label">(새로고침)</div>
+              </div>
+            </div>
             <div class="section-head">
               <div>
                 <h2>벤처투자</h2>
-                <p class="section-subcopy">자료: 중소벤처기업부, 한국벤처캐피탈협회</p>
-              </div>
-              <div class="section-head-actions section-head-actions--inline">
-                <span class="inline-select-label">기준시점</span>
-                <select id="investment-date-select" class="year-select"></select>
-                <div class="page-refresh-wrap section-refresh-wrap">
-                  <button class="icon-refresh-button section-refresh-button" id="investment-refresh-button" type="button">새로고침</button>
-                  <div class="page-refresh-label">(새로고침)</div>
-                </div>
               </div>
             </div>
             <div class="startup-summary" id="investment-summary"></div>
@@ -234,18 +227,18 @@
 
         <section class="tab-panel" data-panel="export">
           <div class="info-section">
+            <p class="section-subcopy section-subcopy--center">자료: 국가데이터처 《기업특성별무역통계》</p>
+            <div class="section-head-actions section-head-actions--inline section-head-actions--center">
+              <span class="inline-select-label">기준시점</span>
+              <select id="export-date-select" class="year-select"></select>
+              <div class="page-refresh-wrap section-refresh-wrap">
+                <button class="icon-refresh-button section-refresh-button" id="export-refresh-button" type="button">새로고침</button>
+                <div class="page-refresh-label">(새로고침)</div>
+              </div>
+            </div>
             <div class="section-head">
               <div>
                 <h2>중소기업 수출</h2>
-                <p class="section-subcopy">자료: 국가데이터처<br />《기업특성별무역통계》</p>
-              </div>
-              <div class="section-head-actions section-head-actions--inline">
-                <span class="inline-select-label">기준시점</span>
-                <select id="export-date-select" class="year-select"></select>
-                <div class="page-refresh-wrap section-refresh-wrap">
-                  <button class="icon-refresh-button section-refresh-button" id="export-refresh-button" type="button">새로고침</button>
-                  <div class="page-refresh-label">(새로고침)</div>
-                </div>
               </div>
             </div>
             <div class="startup-summary" id="export-summary"></div>
@@ -255,6 +248,6 @@
       </section>
     </main>
 
-    <script src="./script.js?v=20260522"></script>
+    <script src="./script.js?v=20260525"></script>
   </body>
 </html>
