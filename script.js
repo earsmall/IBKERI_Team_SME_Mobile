@@ -1101,7 +1101,9 @@ function normalizeFeelingName(name) {
 }
 
 function getFeelingBaseName(name) {
-  return normalizeFeelingName(name).replace(/(실적|전망)$/, "");
+  return normalizeFeelingName(name)
+    .replace(/(실적|전망)BSI$/, "BSI")
+    .replace(/(실적|전망)$/, "");
 }
 
 function getFeelingSelectedOption() {
