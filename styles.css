@@ -663,6 +663,11 @@ h2 {
   line-height: 1.1;
 }
 
+.startup-value--loading {
+  font-size: 15.6px;
+  line-height: 1.35;
+}
+
 .investment-kicker {
   font-weight: 800;
   color: var(--investment-accent, var(--muted));

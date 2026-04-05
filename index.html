@@ -129,20 +129,15 @@
 
         <section class="tab-panel" data-panel="feeling">
           <div class="info-section">
-            <div class="section-head">
-              <div>
-                <h2>중소기업 BSI</h2>
-                <p class="section-subcopy">자료: 한국은행</p>
-              </div>
+            <p class="section-subcopy section-subcopy--center">자료: 한국은행 《기업경기조사》</p>
+            <div class="section-head-actions section-head-actions--inline section-head-actions--center">
+              <span class="inline-select-label">BSI코드</span>
+              <select id="feeling-bsi-select" class="year-select"></select>
               <div class="page-refresh-wrap section-refresh-wrap">
                 <button class="icon-refresh-button section-refresh-button" id="feeling-refresh-button" type="button">새로고침</button>
                 <div class="page-refresh-label">(새로고침)</div>
               </div>
             </div>
-            <label class="year-select-wrap feeling-select-wrap" for="feeling-bsi-select">
-              <span class="year-select-label">BSI코드</span>
-              <select id="feeling-bsi-select" class="year-select"></select>
-            </label>
             <div class="startup-summary" id="feeling-summary"></div>
             <div class="startup-charts" id="feeling-charts"></div>
           </div>
@@ -248,6 +243,6 @@
       </section>
     </main>
 
-    <script src="./script.js?v=20260525"></script>
+    <script src="./script.js?v=20260528"></script>
   </body>
 </html>

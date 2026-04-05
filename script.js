@@ -61,8 +61,8 @@ const FEELING_ACTUAL_API_URL_BASE =
   "https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=ZDNhYjg4YmEwOTQzMGE1ZWFhOTA5NWQxMTI3YThiZGI=&itmId=13103134673999&objL1=13102134673BUSINESS_TYPE_CD.X6000&format=json&jsonVD=Y&prdSe=M&startPrdDe=201501&endPrdDe=202603&outputFields=ORG_ID+TBL_NM+OBJ_NM+NM+ITM_NM+UNIT_NM+PRD_SE+PRD_DE+LST_CHN_DE+DT&orgId=301&tblId=DT_512Y013";
 const FEELING_OUTLOOK_API_URL_BASE =
   "https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=ZDNhYjg4YmEwOTQzMGE1ZWFhOTA5NWQxMTI3YThiZGI=&itmId=13103134488999&objL1=13102134488BUSINESS_TYPE_CD.X6000&format=json&jsonVD=Y&prdSe=M&startPrdDe=201501&endPrdDe=202604&outputFields=ORG_ID+TBL_ID+TBL_NM+OBJ_NM+NM+ITM_NM+UNIT_NM+PRD_SE+PRD_DE+LST_CHN_DE+DT&orgId=301&tblId=DT_512Y014";
-const FEELING_ACTUAL_CACHE_KEY = "feeling_bsi_actual_snapshot_v1";
-const FEELING_OUTLOOK_CACHE_KEY = "feeling_bsi_outlook_snapshot_v1";
+const FEELING_ACTUAL_CACHE_KEY = "feeling_bsi_actual_snapshot_v2";
+const FEELING_OUTLOOK_CACHE_KEY = "feeling_bsi_outlook_snapshot_v2";
 const FEELING_BSI_OPTIONS = [
   { label: "기업심리지수", code: "AX" },
   { label: "업황BSI", code: "AI" },
@@ -121,6 +121,7 @@ let serviceProductionSeries = [];
 let operationRateSeries = [];
 let feelingActualSeries = [];
 let feelingOutlookSeries = [];
+let feelingSelectedLabel = "기업심리지수";
 let feelingHasLoaded = false;
 let managementGrowthSeries = [];
 let managementProfitSeries = [];
@@ -1104,8 +1105,7 @@ function getFeelingBaseName(name) {
 }
 
 function getFeelingSelectedOption() {
-  const select = document.getElementById("feeling-bsi-select");
-  const selectedValue = String(select?.value || "기업심리지수").trim();
+  const selectedValue = String(getFeelingSelectedLabel("actual") || "기업심리지수").trim();
   return FEELING_BSI_OPTIONS.find((item) => item.label === selectedValue) || FEELING_BSI_OPTIONS[0];
 }
 
@@ -1364,7 +1364,7 @@ async function loadFeelingSeries({ url, cacheKey }) {
 
 async function loadFeelingActualData() {
   return loadFeelingSeries({
-    url: `${FEELING_ACTUAL_API_URL_BASE}&objL2=13102134673BSI_CD.${getFeelingSelectedOption().code}`,
+    url: `${FEELING_ACTUAL_API_URL_BASE}&objL2=ALL`,
     cacheKey: FEELING_ACTUAL_CACHE_KEY,
   });
 }
@@ -3381,7 +3381,7 @@ function getFeelingChartSeries() {
     return [];
   }
 
-  const selectedLabel = getFeelingSelectedLabel();
+  const selectedLabel = getFeelingSelectedLabel("actual");
   const filteredSeries = feelingActualSeries.filter((item) => item.bsiBaseName === selectedLabel);
 
   if (!filteredSeries.length) {
@@ -3412,7 +3412,7 @@ function getFeelingOutlookChartSeries() {
     return [];
   }
 
-  const selectedLabel = getFeelingSelectedLabel();
+  const selectedLabel = getFeelingSelectedLabel("outlook");
   const filteredSeries = feelingOutlookSeries.filter((item) => item.bsiBaseName === selectedLabel);
 
   if (!filteredSeries.length) {
@@ -3434,28 +3434,24 @@ function getFeelingOutlookChartSeries() {
   return filteredSeries.filter((item) => Number(item.key.slice(0, 4)) >= startYear);
 }
 
-function getFeelingSelectedLabel() {
-  const select = document.getElementById("feeling-bsi-select");
+function getFeelingSelectedLabel(type = "actual") {
   const options = getFeelingOptions();
   if (!options.length) {
     return "기업심리지수";
   }
 
   const preferred = "기업심리지수";
-  if (!select || !select.value) {
-    return preferred || options[0];
-  }
-
-  return options.includes(select.value) ? select.value : preferred || options[0];
+  const selectedValue = feelingSelectedLabel;
+  return options.includes(selectedValue) ? selectedValue : preferred || options[0];
 }
 
 function initFeelingBsiSelect() {
+  const options = getFeelingOptions();
   const select = document.getElementById("feeling-bsi-select");
   if (!select) {
     return;
   }
 
-  const options = getFeelingOptions();
   if (!options.length) {
     select.innerHTML = "";
     return;
@@ -3464,9 +3460,11 @@ function initFeelingBsiSelect() {
   select.innerHTML = options
     .map((item) => `<option value="${item}">${item}</option>`)
     .join("");
-  select.value = select.value && options.includes(select.value) ? select.value : getFeelingSelectedLabel();
+  select.value = getFeelingSelectedLabel();
   select.onchange = () => {
-    refreshFeelingData();
+    feelingSelectedLabel = select.value;
+    renderFeelingSummary();
+    renderFeelingCharts();
   };
 }
 
@@ -3953,21 +3951,22 @@ function renderFeelingSummary() {
   if (!feelingActualSeries.length && !feelingOutlookSeries.length) {
     summary.innerHTML = `
       <article class="startup-summary-card">
-        <div class="startup-value">${feelingLoadError ? "기업심리지수 데이터를 불러오지 못했습니다." : "기업심리지수 데이터를 불러오는 중입니다."}</div>
+        <div class="startup-value startup-value--loading">${feelingLoadError ? "기업심리지수 데이터를 불러오지 못했습니다." : "기업심리지수 데이터를 불러오는 중입니다."}</div>
         <div class="startup-subvalue">${feelingLoadError || "잠시만 기다려 주세요."}</div>
       </article>
     `;
     return;
   }
 
-  const selectedLabel = getFeelingSelectedLabel();
-  const currentActual = feelingActualSeries.filter((item) => item.bsiBaseName === selectedLabel).slice(-1)[0] || null;
+  const selectedActualLabel = getFeelingSelectedLabel();
+  const selectedOutlookLabel = getFeelingSelectedLabel();
+  const currentActual = feelingActualSeries.filter((item) => item.bsiBaseName === selectedActualLabel).slice(-1)[0] || null;
   const actualPrevious = currentActual
-    ? getPreviousRecordFromSeries(feelingActualSeries, currentActual.key, "bsiBaseName", selectedLabel)
+    ? getPreviousRecordFromSeries(feelingActualSeries, currentActual.key, "bsiBaseName", selectedActualLabel)
     : null;
-  const currentOutlook = feelingOutlookSeries.filter((item) => item.bsiBaseName === selectedLabel).slice(-1)[0] || null;
+  const currentOutlook = feelingOutlookSeries.filter((item) => item.bsiBaseName === selectedOutlookLabel).slice(-1)[0] || null;
   const outlookPrevious = currentOutlook
-    ? getPreviousRecordFromSeries(feelingOutlookSeries, currentOutlook.key, "bsiBaseName", selectedLabel)
+    ? getPreviousRecordFromSeries(feelingOutlookSeries, currentOutlook.key, "bsiBaseName", selectedOutlookLabel)
     : null;
 
   if (!currentActual && !currentOutlook) {
@@ -3976,19 +3975,56 @@ function renderFeelingSummary() {
   }
 
   summary.innerHTML = `
+    <div class="section-head section-head-secondary">
+      <div>
+        <h2>중소기업 BSI실적</h2>
+      </div>
+    </div>
     <article class="startup-summary-card">
-      <div class="startup-summary-grid startup-summary-grid--two-col">
+      <div class="startup-summary-grid">
         <div class="startup-metric">
-          <div class="startup-kicker">${formatBusinessPeriod(currentActual?.key)} 실적</div>
+          <div class="startup-kicker">${formatBusinessPeriod(currentActual?.key)} ${selectedActualLabel} 실적</div>
           <div class="startup-value">${formatBusinessCycleValue(currentActual?.value, currentActual?.unit)}${formatBusinessCycleDelta(currentActual?.value, actualPrevious?.value, "전월대비")}</div>
         </div>
+      </div>
+    </article>
+    ${renderBusinessLineChart({
+      title: `${selectedActualLabel} 실적(최근 3년)`,
+      points: getFeelingChartSeries(),
+      color: "#5c6ac4",
+      labelDigits: 0,
+      summaryDigits: 0,
+    })}
+    <article class="startup-chart-card startup-note-card">
+      <div class="startup-note-text">${getFeelingFootnote(selectedActualLabel)}</div>
+      ${getFeelingFootnoteExtra(selectedActualLabel) ? `<div class="startup-note-text startup-note-text--sub">${getFeelingFootnoteExtra(selectedActualLabel)}</div>` : ""}
+    </article>
+    <div class="section-head section-head-secondary">
+      <div>
+        <h2>중소기업 BSI전망</h2>
+      </div>
+    </div>
+    <article class="startup-summary-card">
+      <div class="startup-summary-grid">
         <div class="startup-metric">
-          <div class="startup-kicker">${formatBusinessPeriod(currentOutlook?.key)} 전망</div>
+          <div class="startup-kicker">${formatBusinessPeriod(currentOutlook?.key)} ${selectedOutlookLabel} 전망</div>
           <div class="startup-value">${formatBusinessCycleValue(currentOutlook?.value, currentOutlook?.unit)}${formatBusinessCycleDelta(currentOutlook?.value, outlookPrevious?.value, "전월대비")}</div>
         </div>
       </div>
     </article>
+    ${renderBusinessLineChart({
+      title: `${selectedOutlookLabel} 전망(최근 3년)`,
+      points: getFeelingOutlookChartSeries(),
+      color: "#3b82f6",
+      labelDigits: 0,
+      summaryDigits: 0,
+    })}
+    <article class="startup-chart-card startup-note-card">
+      <div class="startup-note-text">${getFeelingFootnote(selectedOutlookLabel)}</div>
+      ${getFeelingFootnoteExtra(selectedOutlookLabel) ? `<div class="startup-note-text startup-note-text--sub">${getFeelingFootnoteExtra(selectedOutlookLabel)}</div>` : ""}
+    </article>
   `;
+  initFeelingBsiSelect();
 }
 
 function renderFeelingCharts() {
@@ -3998,39 +4034,7 @@ function renderFeelingCharts() {
     return;
   }
 
-  if (!feelingActualSeries.length && !feelingOutlookSeries.length) {
-    charts.innerHTML = "";
-    return;
-  }
-
-  const selectedLabel = getFeelingSelectedLabel();
-  const footnote = getFeelingFootnote(selectedLabel);
-  const footnoteExtra = getFeelingFootnoteExtra(selectedLabel);
-
-  charts.innerHTML = [
-    renderBusinessLineChart({
-      title: `${selectedLabel} 실적(최근 3년)`,
-      points: getFeelingChartSeries(),
-      color: "#5c6ac4",
-      labelDigits: 0,
-      summaryDigits: 0,
-    }),
-    renderBusinessLineChart({
-      title: `${selectedLabel} 전망(최근 3년)`,
-      points: getFeelingOutlookChartSeries(),
-      color: "#3b82f6",
-      labelDigits: 0,
-      summaryDigits: 0,
-    }),
-    `
-      <article class="startup-chart-card startup-note-card">
-        <div class="startup-note-text">${footnote}</div>
-        ${footnoteExtra ? `<div class="startup-note-text startup-note-text--sub">${footnoteExtra}</div>` : ""}
-      </article>
-    `,
-  ]
-    .filter(Boolean)
-    .join("");
+  charts.innerHTML = "";
 }
 
 async function refreshFeelingData() {
@@ -4079,7 +4083,7 @@ function renderManagementSummary() {
   if (!managementGrowthSeries.length) {
     summary.innerHTML = `
       <article class="startup-summary-card">
-        <div class="startup-value">${managementLoadError ? "경영지표 데이터를 불러오지 못했습니다." : "경영지표 데이터를 불러오는 중입니다."}</div>
+        <div class="startup-value startup-value--loading">${managementLoadError ? "경영지표 데이터를 불러오지 못했습니다." : "경영지표 데이터를 불러오는 중입니다."}</div>
         <div class="startup-subvalue">${managementLoadError || "잠시만 기다려 주세요."}</div>
       </article>
     `;
@@ -4246,7 +4250,7 @@ function renderManagementMetricSummary(containerId, series) {
   if (!series.length) {
     summary.innerHTML = `
       <article class="startup-summary-card">
-        <div class="startup-value">${managementLoadError ? "경영지표 데이터를 불러오지 못했습니다." : "경영지표 데이터를 불러오는 중입니다."}</div>
+        <div class="startup-value startup-value--loading">${managementLoadError ? "경영지표 데이터를 불러오지 못했습니다." : "경영지표 데이터를 불러오는 중입니다."}</div>
         <div class="startup-subvalue">${managementLoadError || "잠시만 기다려 주세요."}</div>
       </article>
     `;
@@ -4569,10 +4573,17 @@ function renderLoanSummary() {
       </div>
     </article>
     ${renderLoanLineChart({
-      title: "중소기업대출 연체율",
+      title: "대기업 및 중소기업 대출 연체율",
       points: delinquencyPoints,
       seriesConfig: [
+        { key: "largeCompanyRate", label: "대기업", color: "#2c7be5" },
         { key: "smeRate", label: "중소기업", color: "#ff675f" },
+      ],
+    })}
+    ${renderLoanLineChart({
+      title: "중소법인 및 개인사업자 대출 연체율",
+      points: delinquencyPoints,
+      seriesConfig: [
         { key: "corporateRate", label: "중소법인", color: "#ff7b63" },
         { key: "solePropRate", label: "개인사업자", color: "#ffb347" },
       ],
