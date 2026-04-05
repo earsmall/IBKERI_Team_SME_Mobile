@@ -1333,6 +1333,29 @@ function writeFeelingSnapshot(cacheKey, rows) {
   }
 }
 
+function hydrateFeelingFromCache() {
+  const cachedActualRows = readFeelingSnapshot(FEELING_ACTUAL_CACHE_KEY);
+  const cachedOutlookRows = readFeelingSnapshot(FEELING_OUTLOOK_CACHE_KEY);
+
+  if (!cachedActualRows.length && !cachedOutlookRows.length) {
+    return false;
+  }
+
+  if (cachedActualRows.length) {
+    feelingActualSeries = cachedActualRows;
+  }
+
+  if (cachedOutlookRows.length) {
+    feelingOutlookSeries = cachedOutlookRows;
+  }
+
+  initFeelingBsiSelect();
+  renderFeelingSummary();
+  renderFeelingCharts();
+  feelingHasLoaded = true;
+  return true;
+}
+
 async function loadFeelingSeries({ url, cacheKey }) {
   try {
     let payload;
@@ -4051,7 +4074,6 @@ async function refreshFeelingData() {
 
   try {
     feelingLoadError = "";
-    feelingHasLoaded = false;
     const [actualRows, outlookRows] = await Promise.all([
       loadFeelingActualData(),
       loadFeelingOutlookData(),
@@ -5525,6 +5547,7 @@ function setActiveTab(tabName) {
   }
 
   if (tabName === "feeling" && !feelingHasLoaded) {
+    hydrateFeelingFromCache();
     initFeelingBsiSelect();
     refreshFeelingData();
   }
