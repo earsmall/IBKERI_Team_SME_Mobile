@@ -49,6 +49,15 @@ const SME_SALES_API_URL =
 const SME_COUNT_CACHE_KEY = "sme_count_snapshot_v3";
 const SME_EMPLOYEE_CACHE_KEY = "sme_employee_snapshot_v3";
 const SME_SALES_CACHE_KEY = "sme_sales_snapshot_v3";
+const SME_PROFILE_CACHE_KEY = "sme_profile_snapshot_v1";
+const LOAN_SHEET_CACHE_KEY = "loan_sheet_snapshot_v1";
+const DELINQUENCY_SHEET_CACHE_KEY = "loan_delinquency_sheet_snapshot_v1";
+const INVESTMENT_SHEET_CACHE_KEY = "investment_sheet_snapshot_v1";
+const INVESTMENT_STAGE_SHEET_CACHE_KEY = "investment_stage_sheet_snapshot_v1";
+const INVESTMENT_SECTOR_SHEET_CACHE_KEY = "investment_sector_sheet_snapshot_v1";
+const INVESTMENT_SOURCE_SHEET_CACHE_KEY = "investment_source_sheet_snapshot_v1";
+const LOAN_DATA_CACHE_KEY = "loan_data_snapshot_v1";
+const INVESTMENT_DATA_CACHE_KEY = "investment_data_snapshot_v1";
 const EXPORT_SUMMARY_API_URL =
   "https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=ZDNhYjg4YmEwOTQzMGE1ZWFhOTA5NWQxMTI3YThiZGI=&itmId=T10+T20+&objL1=01+&objL2=00+10+20+30+40+50+&objL3=&objL4=&objL5=&objL6=&objL7=&objL8=&format=json&jsonVD=Y&prdSe=Y&startPrdDe=2015&endPrdDe=2025&outputFields=ORG_ID+TBL_NM+OBJ_NM+NM+ITM_NM+UNIT_NM+PRD_SE+PRD_DE+LST_CHN_DE+&orgId=101&tblId=DT_1TEC_P116";
 const EXPORT_COUNTRY_API_URL =
@@ -415,6 +424,39 @@ async function loadGoogleSheet(sheetName, options = {}) {
   }
 }
 
+function readSheetSnapshot(cacheKey) {
+  try {
+    const raw = window.localStorage.getItem(cacheKey);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function writeSheetSnapshot(cacheKey, rows) {
+  try {
+    window.localStorage.setItem(cacheKey, JSON.stringify(rows));
+  } catch (error) {
+    // Ignore local cache errors.
+  }
+}
+
+async function loadGoogleSheetWithCache(sheetName, cacheKey, options = {}) {
+  try {
+    const rows = await loadGoogleSheet(sheetName, options);
+    writeSheetSnapshot(cacheKey, rows);
+    return rows;
+  } catch (error) {
+    const cachedRows = readSheetSnapshot(cacheKey);
+    if (cachedRows.length) {
+      return cachedRows;
+    }
+
+    throw error;
+  }
+}
+
 function sortSmeIndustries(a, b) {
   if (a === "전산업") {
     return -1;
@@ -544,6 +586,55 @@ async function loadSmeMetricApi(url, cacheKey) {
   }
 }
 
+function createSmeProfileDataset(smeCountRows, smeEmployeeRows, smeSalesRows) {
+  return buildSmeDataset([
+    { rows: smeCountRows, config: { title: "湲곗뾽??", unit: "媛?", color: "#2c7be5" } },
+    { rows: smeEmployeeRows, config: { title: "醫낆궗?먯닔", unit: "紐?", color: "#4a9bff" } },
+    { rows: smeSalesRows, config: { title: "留ㅼ텧??", unit: "諛깅쭔??", color: "#7fb8ff" } },
+  ]);
+}
+
+function readCachedSmeProfileData() {
+  try {
+    const raw = window.localStorage.getItem(SME_PROFILE_CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed?.nextData) && Array.isArray(parsed?.nextYears)) {
+        return parsed;
+      }
+    }
+  } catch (error) {
+    // Ignore local cache errors.
+  }
+
+  return null;
+
+  const smeCountRows = readSmeMetricSnapshot(SME_COUNT_CACHE_KEY);
+  const smeEmployeeRows = readSmeMetricSnapshot(SME_EMPLOYEE_CACHE_KEY);
+  const smeSalesRows = readSmeMetricSnapshot(SME_SALES_CACHE_KEY);
+
+  if (!smeCountRows.length && !smeEmployeeRows.length && !smeSalesRows.length) {
+    return null;
+  }
+
+  try {
+    return createSmeProfileDataset(smeCountRows, smeEmployeeRows, smeSalesRows);
+  } catch (error) {
+    return null;
+  }
+}
+
+function writeCachedSmeProfileData(nextData, nextYears) {
+  try {
+    window.localStorage.setItem(
+      SME_PROFILE_CACHE_KEY,
+      JSON.stringify({ nextData, nextYears }),
+    );
+  } catch (error) {
+    // Ignore local cache errors.
+  }
+}
+
 async function loadSmeProfileData() {
   const [smeCountRows, smeEmployeeRows, smeSalesRows] = await Promise.all([
     loadSmeMetricApi(SME_COUNT_API_URL, SME_COUNT_CACHE_KEY),
@@ -667,6 +758,53 @@ async function refreshStartupData() {
   }
 }
 
+/* function applyInvestmentSheetData(
+  investmentSheetRows,
+  investmentStageSheetRows,
+  investmentSectorSheetRows,
+  investmentSourceSheetRows,
+) {
+  investmentSeries = parseInvestmentRows(investmentSheetRows, [
+    "?좉퇋 踰ㅼ쿂?ъ옄湲덉븸",
+    "?쇳닾?먭린????,
+    "湲곗뾽???ъ옄湲덉븸",
+    "踰ㅼ쿂???寃곗젙湲덉븸",
+    "踰ㅼ쿂???寃곗꽦 ??,
+  ]);
+  investmentStageSeries = parseInvestmentRows(investmentStageSheetRows, [
+    "珥덇린 ?ъ옄(3???대궡)",
+    "以묎린 ?ъ옄(3~7???대궡)",
+    "?꾧린 ?ъ옄(7??珥덇낵)",
+  ]);
+  investmentSectorSeries = parseInvestmentRows(investmentSectorSheetRows, [
+    "ICT?쒕퉬??,
+    "諛붿씠?ㅒ룹쓽猷?,
+    "?꾧린쨌湲곌퀎쨌?λ퉬",
+    "ICT?쒖“",
+    "?좏넻쨌?쒕퉬??,
+    "?뷀븰쨌?뚯옱",
+    "?곸긽쨌怨듭뿰쨌?뚮컲",
+    "寃뚯엫",
+    "湲고?",
+  ]);
+  investmentSourceSeries = parseInvestmentRows(investmentSourceSheetRows, [
+    "?뺤콉湲덉쑖",
+    "紐⑦깭???,
+    "?깆옣湲덉쑖",
+    "?곗뾽???,
+    "湲고? ?뺤콉湲덉쑖",
+    "誘쇨컙遺臾?,
+    "媛쒖씤",
+    "?쇰컲踰뺤씤",
+    "湲덉쑖湲곌?(?곗? ?쒖쇅)",
+    "?곌린湲?諛?怨듭젣??,
+    "VC",
+    "湲고??⑥껜 諛??멸뎅??,
+  ]);
+  investmentDates = investmentSeries.map((item) => item.key);
+}
+
+*/
 async function refreshLoanData() {
   const button = document.getElementById("loan-refresh-button");
   const previousText = button?.textContent || "새로고침";
@@ -679,11 +817,11 @@ async function refreshLoanData() {
   try {
     loanLoadError = "";
     const [loanSheetRows, delinquencySheetRows] = await Promise.all([
-      loadGoogleSheet("", {
+      loadGoogleSheetWithCache("", LOAN_SHEET_CACHE_KEY, {
         baseUrl: LOAN_SHEET_BASE_URL,
         openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
-      loadGoogleSheet("연체율", {
+      loadGoogleSheetWithCache("연체율", DELINQUENCY_SHEET_CACHE_KEY, {
         baseUrl: LOAN_SHEET_BASE_URL,
         openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
@@ -692,6 +830,7 @@ async function refreshLoanData() {
     loanSeries = parseLoanRows(loanSheetRows);
     delinquencySeries = parseDelinquencyRows(delinquencySheetRows);
     loanYears = [...new Set([...loanSeries.map((item) => item.year), ...delinquencySeries.map((item) => item.year)])].sort((a, b) => a - b);
+    writeCachedLoanData();
     initLoanYearSelect();
     renderLoanSummary();
     renderLoanCharts();
@@ -724,19 +863,19 @@ async function refreshInvestmentData() {
       investmentSectorSheetRows,
       investmentSourceSheetRows,
     ] = await Promise.all([
-      loadGoogleSheet("투자", {
+      loadGoogleSheetWithCache("투자", INVESTMENT_SHEET_CACHE_KEY, {
         baseUrl: LOAN_SHEET_BASE_URL,
         openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
-      loadGoogleSheet("업력별투자", {
+      loadGoogleSheetWithCache("업력별투자", INVESTMENT_STAGE_SHEET_CACHE_KEY, {
         baseUrl: LOAN_SHEET_BASE_URL,
         openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
-      loadGoogleSheet("업종별투자", {
+      loadGoogleSheetWithCache("업종별투자", INVESTMENT_SECTOR_SHEET_CACHE_KEY, {
         baseUrl: LOAN_SHEET_BASE_URL,
         openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
-      loadGoogleSheet("출자자별", {
+      loadGoogleSheetWithCache("출자자별", INVESTMENT_SOURCE_SHEET_CACHE_KEY, {
         baseUrl: LOAN_SHEET_BASE_URL,
         openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
@@ -780,6 +919,7 @@ async function refreshInvestmentData() {
       "기타단체 및 외국인",
     ]);
     investmentDates = investmentSeries.map((item) => item.key);
+    writeCachedInvestmentData();
     initInvestmentDateSelect();
     renderInvestmentSummary();
     renderInvestmentCharts();
@@ -1513,6 +1653,36 @@ async function loadManagementStabilityData() {
   return loadManagementMetricData(MANAGEMENT_STABILITY_API_URL, MANAGEMENT_STABILITY_CACHE_KEY);
 }
 
+function hydrateManagementFromCache() {
+  const growthRows = readManagementGrowthSnapshot();
+  const profitRows = readManagementMetricSnapshot(MANAGEMENT_PROFIT_CACHE_KEY);
+  const stabilityRows = readManagementMetricSnapshot(MANAGEMENT_STABILITY_CACHE_KEY);
+
+  if (!growthRows.length && !profitRows.length && !stabilityRows.length) {
+    return false;
+  }
+
+  managementLoadError = "";
+  if (growthRows.length) {
+    managementGrowthSeries = growthRows;
+  }
+  if (profitRows.length) {
+    managementProfitSeries = profitRows;
+  }
+  if (stabilityRows.length) {
+    managementStabilitySeries = stabilityRows;
+  }
+  managementHasLoaded = true;
+  initManagementYearSelect();
+  renderManagementSummary();
+  renderManagementCharts();
+  renderManagementProfitSummary();
+  renderManagementProfitCharts();
+  renderManagementStabilitySummary();
+  renderManagementStabilityCharts();
+  return true;
+}
+
 async function refreshBusinessData() {
   const buttons = [
     document.getElementById("business-refresh-button"),
@@ -1824,6 +1994,39 @@ function formatDateKey(date) {
   return `${year}-${month}-${day}`;
 }
 
+function serializeSeriesWithDate(items) {
+  return (items || []).map((item) => ({
+    ...item,
+    date: formatDateKey(item?.date),
+  }));
+}
+
+function reviveSeriesWithDate(items) {
+  return (items || [])
+    .map((item) => ({
+      ...item,
+      date: item?.date ? new Date(item.date) : null,
+    }))
+    .filter((item) => item.date && !Number.isNaN(item.date.getTime()));
+}
+
+function readProcessedSnapshot(cacheKey) {
+  try {
+    const raw = window.localStorage.getItem(cacheKey);
+    return raw ? JSON.parse(raw) : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function writeProcessedSnapshot(cacheKey, payload) {
+  try {
+    window.localStorage.setItem(cacheKey, JSON.stringify(payload));
+  } catch (error) {
+    // Ignore local cache errors.
+  }
+}
+
 function formatInvestmentPeriod(date) {
   if (!date) {
     return "-";
@@ -2011,6 +2214,75 @@ function parseInvestmentRows(rows, valueKeys) {
     })
     .filter(Boolean)
     .sort((a, b) => a.date - b.date);
+}
+
+function readCachedLoanData() {
+  const payload = readProcessedSnapshot(LOAN_DATA_CACHE_KEY);
+  if (!payload) {
+    return null;
+  }
+
+  const nextLoanSeries = reviveSeriesWithDate(payload.loanSeries);
+  const nextDelinquencySeries = reviveSeriesWithDate(payload.delinquencySeries);
+  const nextLoanYears = Array.isArray(payload.loanYears) ? payload.loanYears : [];
+
+  if (!nextLoanSeries.length && !nextDelinquencySeries.length) {
+    return null;
+  }
+
+  return {
+    loanSeries: nextLoanSeries,
+    delinquencySeries: nextDelinquencySeries,
+    loanYears: nextLoanYears,
+  };
+}
+
+function writeCachedLoanData() {
+  writeProcessedSnapshot(LOAN_DATA_CACHE_KEY, {
+    loanSeries: serializeSeriesWithDate(loanSeries),
+    delinquencySeries: serializeSeriesWithDate(delinquencySeries),
+    loanYears,
+  });
+}
+
+function readCachedInvestmentData() {
+  const payload = readProcessedSnapshot(INVESTMENT_DATA_CACHE_KEY);
+  if (!payload) {
+    return null;
+  }
+
+  const nextInvestmentSeries = reviveSeriesWithDate(payload.investmentSeries);
+  const nextInvestmentStageSeries = reviveSeriesWithDate(payload.investmentStageSeries);
+  const nextInvestmentSectorSeries = reviveSeriesWithDate(payload.investmentSectorSeries);
+  const nextInvestmentSourceSeries = reviveSeriesWithDate(payload.investmentSourceSeries);
+  const nextInvestmentDates = Array.isArray(payload.investmentDates) ? payload.investmentDates : [];
+
+  if (
+    !nextInvestmentSeries.length &&
+    !nextInvestmentStageSeries.length &&
+    !nextInvestmentSectorSeries.length &&
+    !nextInvestmentSourceSeries.length
+  ) {
+    return null;
+  }
+
+  return {
+    investmentSeries: nextInvestmentSeries,
+    investmentStageSeries: nextInvestmentStageSeries,
+    investmentSectorSeries: nextInvestmentSectorSeries,
+    investmentSourceSeries: nextInvestmentSourceSeries,
+    investmentDates: nextInvestmentDates,
+  };
+}
+
+function writeCachedInvestmentData() {
+  writeProcessedSnapshot(INVESTMENT_DATA_CACHE_KEY, {
+    investmentSeries: serializeSeriesWithDate(investmentSeries),
+    investmentStageSeries: serializeSeriesWithDate(investmentStageSeries),
+    investmentSectorSeries: serializeSeriesWithDate(investmentSectorSeries),
+    investmentSourceSeries: serializeSeriesWithDate(investmentSourceSeries),
+    investmentDates,
+  });
 }
 
 function getLoanSelectedYear() {
@@ -2331,6 +2603,20 @@ async function loadExportData() {
     loadExportApi(EXPORT_SUMMARY_API_URL, EXPORT_SUMMARY_CACHE_KEY),
     loadExportApi(EXPORT_COUNTRY_API_URL, EXPORT_COUNTRY_CACHE_KEY),
   ]);
+
+  return {
+    series: parseExportSummaryApiRows(summaryRows),
+    countrySeries: parseExportCountryApiRows(countryRows),
+  };
+}
+
+function readCachedExportData() {
+  const summaryRows = readExportSnapshot(EXPORT_SUMMARY_CACHE_KEY);
+  const countryRows = readExportSnapshot(EXPORT_COUNTRY_CACHE_KEY);
+
+  if (!summaryRows.length && !countryRows.length) {
+    return null;
+  }
 
   return {
     series: parseExportSummaryApiRows(summaryRows),
@@ -5277,7 +5563,108 @@ function initSmeYearSelect() {
   }
 }
 
+function syncDashboardUi() {
+  initSmeYearSelect();
+  initStartupYearSelect();
+  initBusinessDateSelect();
+  initFeelingBsiSelect();
+  initManagementYearSelect();
+  initLoanYearSelect();
+  initInvestmentDateSelect();
+  initExportDateSelect();
+
+  const startupYearSelect = document.getElementById("startup-year-select");
+  if (startupYearSelect) {
+    startupYearSelect.onchange = () => {
+      renderStartupSummary();
+      renderStartupCharts();
+    };
+  }
+
+  renderSmeData();
+  renderSmeCharts();
+  renderStartupSummary();
+  renderStartupCharts();
+  renderBusinessSummary();
+  renderBusinessCharts();
+  renderProductionSummary();
+  renderProductionCharts();
+  renderOperationSummary();
+  renderOperationCharts();
+  renderFeelingSummary();
+  renderFeelingCharts();
+  renderManagementSummary();
+  renderManagementCharts();
+  renderManagementProfitSummary();
+  renderManagementProfitCharts();
+  renderManagementStabilitySummary();
+  renderManagementStabilityCharts();
+  renderLoanSummary();
+  renderLoanCharts();
+  renderInvestmentSummary();
+  renderInvestmentCharts();
+  renderExportSummary();
+  renderExportCharts();
+}
+
+function hydrateDashboardFromCache() {
+  let hydrated = false;
+  const cachedSmeProfileData = readCachedSmeProfileData();
+  const cachedStartupRows = readStartupSnapshot();
+  const cachedLoanData = readCachedLoanData();
+  const cachedInvestmentData = readCachedInvestmentData();
+  const cachedExportData = readCachedExportData();
+
+  if (cachedSmeProfileData) {
+    smeLoadError = "";
+    smeData = cachedSmeProfileData.nextData;
+    smeYears = cachedSmeProfileData.nextYears;
+    hydrated = true;
+  }
+
+  if (cachedStartupRows.length) {
+    startupLoadError = "";
+    startupSeries = cachedStartupRows;
+    hydrated = true;
+  }
+
+  if (cachedLoanData) {
+    loanLoadError = "";
+    loanSeries = cachedLoanData.loanSeries;
+    delinquencySeries = cachedLoanData.delinquencySeries;
+    loanYears = cachedLoanData.loanYears;
+    hydrated = true;
+  }
+
+  if (cachedInvestmentData) {
+    investmentLoadError = "";
+    investmentSeries = cachedInvestmentData.investmentSeries;
+    investmentStageSeries = cachedInvestmentData.investmentStageSeries;
+    investmentSectorSeries = cachedInvestmentData.investmentSectorSeries;
+    investmentSourceSeries = cachedInvestmentData.investmentSourceSeries;
+    investmentDates = cachedInvestmentData.investmentDates;
+    hydrated = true;
+  }
+
+  if (cachedExportData) {
+    exportLoadError = "";
+    exportSeries = cachedExportData.series;
+    exportCountrySeries = cachedExportData.countrySeries;
+    exportDates = exportSeries.map((item) => item.key);
+    hydrated = true;
+  }
+
+  if (!hydrated) {
+    return false;
+  }
+
+  syncDashboardUi();
+  return true;
+}
+
 async function loadSmeData() {
+  hydrateDashboardFromCache();
+
   try {
     smeLoadError = "";
     startupLoadError = "";
@@ -5304,32 +5691,35 @@ async function loadSmeData() {
       serviceProductionRows,
       operationRows,
     ] = await Promise.all([
-      loadSmeProfileData(),
+      loadSmeProfileData().catch((error) => {
+        smeLoadError = `오류: ${error.message}`;
+        return { nextData: smeData, nextYears: smeYears };
+      }),
       loadStartupData().catch((error) => {
         startupLoadError = `오류: ${error.message}`;
         return [];
       }),
-      loadGoogleSheet("", {
+      loadGoogleSheetWithCache("", LOAN_SHEET_CACHE_KEY, {
         baseUrl: LOAN_SHEET_BASE_URL,
         openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
-      loadGoogleSheet("연체율", {
+      loadGoogleSheetWithCache("연체율", DELINQUENCY_SHEET_CACHE_KEY, {
         baseUrl: LOAN_SHEET_BASE_URL,
         openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
-      loadGoogleSheet("투자", {
+      loadGoogleSheetWithCache("투자", INVESTMENT_SHEET_CACHE_KEY, {
         baseUrl: LOAN_SHEET_BASE_URL,
         openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
-      loadGoogleSheet("업력별투자", {
+      loadGoogleSheetWithCache("업력별투자", INVESTMENT_STAGE_SHEET_CACHE_KEY, {
         baseUrl: LOAN_SHEET_BASE_URL,
         openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
-      loadGoogleSheet("업종별투자", {
+      loadGoogleSheetWithCache("업종별투자", INVESTMENT_SECTOR_SHEET_CACHE_KEY, {
         baseUrl: LOAN_SHEET_BASE_URL,
         openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
-      loadGoogleSheet("출자자별", {
+      loadGoogleSheetWithCache("출자자별", INVESTMENT_SOURCE_SHEET_CACHE_KEY, {
         baseUrl: LOAN_SHEET_BASE_URL,
         openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
@@ -5402,7 +5792,9 @@ async function loadSmeData() {
     exportSeries = exportPayload?.series || [];
     exportCountrySeries = exportPayload?.countrySeries || [];
     loanYears = [...new Set([...loanSeries.map((item) => item.year), ...delinquencySeries.map((item) => item.year)])].sort((a, b) => a - b);
+    writeCachedLoanData();
     investmentDates = investmentSeries.map((item) => item.key);
+    writeCachedInvestmentData();
     exportDates = exportSeries.map((item) => item.key);
     businessCompositeSeries = businessCompositeRows;
     businessSeries = businessCycleRows;
@@ -5414,46 +5806,20 @@ async function loadSmeData() {
     feelingOutlookSeries = [];
     smeData = nextData;
     smeYears = nextYears;
-    initSmeYearSelect();
-    initStartupYearSelect();
-    initBusinessDateSelect();
-    initFeelingBsiSelect();
-    initManagementYearSelect();
-    initLoanYearSelect();
-    initInvestmentDateSelect();
-    initExportDateSelect();
-    const startupYearSelect = document.getElementById("startup-year-select");
-    if (startupYearSelect) {
-      startupYearSelect.onchange = () => {
-        renderStartupSummary();
-        renderStartupCharts();
-      };
-    }
-    renderSmeData();
-    renderSmeCharts();
-    renderStartupSummary();
-    renderStartupCharts();
-    renderBusinessSummary();
-    renderBusinessCharts();
-    renderProductionSummary();
-    renderProductionCharts();
-    renderOperationSummary();
-    renderOperationCharts();
-    renderFeelingSummary();
-    renderFeelingCharts();
-    renderManagementSummary();
-    renderManagementCharts();
-    renderManagementProfitSummary();
-    renderManagementProfitCharts();
-    renderManagementStabilitySummary();
-    renderManagementStabilityCharts();
-    renderLoanSummary();
-    renderLoanCharts();
-    renderInvestmentSummary();
-    renderInvestmentCharts();
-    renderExportSummary();
-    renderExportCharts();
+    writeCachedSmeProfileData(nextData, nextYears);
+    syncDashboardUi();
   } catch (error) {
+    smeLoadError = smeLoadError || `오류: ${error.message}`;
+    startupLoadError = startupLoadError || `오류: ${error.message}`;
+    loanLoadError = loanLoadError || `오류: ${error.message}`;
+    investmentLoadError = investmentLoadError || `오류: ${error.message}`;
+    exportLoadError = exportLoadError || `오류: ${error.message}`;
+    businessLoadError = businessLoadError || `오류: ${error.message}`;
+    productionLoadError = productionLoadError || `오류: ${error.message}`;
+    operationLoadError = operationLoadError || `오류: ${error.message}`;
+    syncDashboardUi();
+    return;
+
     smeData = [];
     smeYears = [];
     smeSelectedYear = "";
@@ -5552,6 +5918,7 @@ function setActiveTab(tabName) {
     refreshFeelingData();
   }
   if (tabName === "management" && !managementHasLoaded) {
+    hydrateManagementFromCache();
     refreshManagementData();
   }
 }
