@@ -4035,14 +4035,15 @@ function renderBusinessLineChart({
   const range = maxValue - minValue || 1;
   const width = 320;
   const height = 150;
-  const paddingX = 22;
+  const paddingLeft = 24;
+  const paddingRight = 42;
   const paddingTop = 26;
   const paddingBottom = 18;
-  const usableWidth = width - paddingX * 2;
+  const usableWidth = width - paddingLeft - paddingRight;
   const usableHeight = height - paddingTop - paddingBottom;
 
   const plotted = points.map((item, index) => ({
-    x: points.length === 1 ? width / 2 : paddingX + (usableWidth / (points.length - 1)) * index,
+    x: points.length === 1 ? (paddingLeft + width - paddingRight) / 2 : paddingLeft + (usableWidth / (points.length - 1)) * index,
     y: paddingTop + (1 - (item.value - minValue) / range) * usableHeight,
     value: item.value,
     label: formatBusinessPeriod(item.key),
@@ -4072,11 +4073,11 @@ function renderBusinessLineChart({
           <span class="startup-chart-summary-item is-yellow">최근: ${formatSummaryValue(latestPoint)}</span>
         </div>
       </div>
-      <div class="startup-line-chart" style="--bar-count:${points.length};">
+      <div class="startup-line-chart">
         <svg class="startup-line-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">
-          <line class="startup-line-grid" x1="${paddingX}" y1="${height - paddingBottom}" x2="${width - paddingX}" y2="${height - paddingBottom}"></line>
-          ${referenceY === null ? "" : `<line class="startup-line-reference" x1="${paddingX}" y1="${referenceY}" x2="${width - paddingX}" y2="${referenceY}"></line>`}
-          ${referenceY === null ? "" : `<text class="startup-line-reference-label" x="${width - paddingX}" y="${Math.max(12, referenceY - 6)}">(2015=100)</text>`}
+          <line class="startup-line-grid" x1="${paddingLeft}" y1="${height - paddingBottom}" x2="${width - paddingRight}" y2="${height - paddingBottom}"></line>
+          ${referenceY === null ? "" : `<line class="startup-line-reference" x1="${paddingLeft}" y1="${referenceY}" x2="${width - paddingRight}" y2="${referenceY}"></line>`}
+          ${referenceY === null ? "" : `<text class="startup-line-reference-label" x="${width - paddingRight}" y="${Math.max(12, referenceY - 6)}">(2015=100)</text>`}
           <path class="startup-line-path" d="${path}" style="stroke:${color};"></path>
           ${plotted
             .map(
@@ -4100,9 +4101,11 @@ function renderBusinessLineChart({
                   : index % 2 === 0
                     ? Math.max(12, point.y - 10)
                     : Math.min(height - paddingBottom - 6, point.y + 14);
+                const labelAnchor = isFirstPoint ? "start" : isLatestPoint ? "end" : "middle";
+                const labelDx = isFirstPoint ? 6 : isLatestPoint ? -6 : 0;
 
                 return `
-                ${highlightKeys.has(point.key) ? `<text class="startup-line-value" x="${point.x}" y="${labelY}" style="fill:${labelColor};font-weight:${isLatestPoint ? 800 : 700};">${formatNumber(point.value, labelDigits)}</text>` : ""}
+                ${highlightKeys.has(point.key) ? `<text class="startup-line-value" x="${point.x}" y="${labelY}" dx="${labelDx}" style="fill:${labelColor};font-weight:${isLatestPoint ? 800 : 700};text-anchor:${labelAnchor};">${formatNumber(point.value, labelDigits)}</text>` : ""}
                 ${highlightKeys.has(point.key) ? `<circle class="startup-line-point" cx="${point.x}" cy="${point.y}" r="${pointRadius}" style="fill:${pointFill};stroke-width:${isLatestPoint ? 2.5 : 2};">
                   <title>${point.label} ${formatNumber(point.value, labelDigits)}</title>
                 </circle>` : ""}
@@ -4115,12 +4118,20 @@ function renderBusinessLineChart({
           ${plotted
             .map((point, index) => {
               const isLatest = index === plotted.length - 1;
+              const isFirst = index === 0;
               const latestYear = plotted[plotted.length - 1]?.key?.slice(0, 4);
               const pointYear = point.key?.slice(0, 4);
               const label = !isLatest && pointYear === latestYear
                 ? ""
                 : formatBusinessAxisLabel(point.key, isLatest);
-              return `<div class="startup-line-year">${label}</div>`;
+              const classes = ["startup-line-year"];
+              if (isFirst) {
+                classes.push("is-first");
+              }
+              if (isLatest) {
+                classes.push("is-last");
+              }
+              return `<div class="${classes.join(" ")}" style="left:${(point.x / width) * 100}%;">${label}</div>`;
             })
             .join("")}
         </div>
@@ -4202,14 +4213,15 @@ function renderProductionLineChart({ title, subtitle = "", unitLabel = "", point
   const range = maxValue - minValue || 1;
   const width = 320;
   const height = 150;
-  const paddingX = 22;
+  const paddingLeft = 24;
+  const paddingRight = 36;
   const paddingTop = 26;
   const paddingBottom = 18;
-  const usableWidth = width - paddingX * 2;
+  const usableWidth = width - paddingLeft - paddingRight;
   const usableHeight = height - paddingTop - paddingBottom;
 
   const plotted = points.map((item, index) => ({
-    x: points.length === 1 ? width / 2 : paddingX + (usableWidth / (points.length - 1)) * index,
+    x: points.length === 1 ? (paddingLeft + width - paddingRight) / 2 : paddingLeft + (usableWidth / (points.length - 1)) * index,
     y: paddingTop + (1 - (item.value - minValue) / range) * usableHeight,
     value: item.value,
     label: formatQuarterPeriod(item.key),
@@ -4239,10 +4251,10 @@ function renderProductionLineChart({ title, subtitle = "", unitLabel = "", point
           <span class="startup-chart-summary-item is-yellow">최근: ${formatSummaryValue(latestPoint)}</span>
         </div>
       </div>
-      <div class="startup-line-chart" style="--bar-count:${points.length};">
+      <div class="startup-line-chart">
         ${unitLabel ? `<div class="startup-line-unit">(단위: ${unitLabel})</div>` : ""}
         <svg class="startup-line-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">
-          <line class="startup-line-grid" x1="${paddingX}" y1="${height - paddingBottom}" x2="${width - paddingX}" y2="${height - paddingBottom}"></line>
+          <line class="startup-line-grid" x1="${paddingLeft}" y1="${height - paddingBottom}" x2="${width - paddingRight}" y2="${height - paddingBottom}"></line>
           <path class="startup-line-path" d="${path}" style="stroke:${color};"></path>
           ${plotted
             .map((point, index) => {
@@ -4263,9 +4275,11 @@ function renderProductionLineChart({ title, subtitle = "", unitLabel = "", point
               const labelY = index % 2 === 0
                 ? Math.max(12, point.y - 10)
                 : Math.min(height - paddingBottom - 6, point.y + 14);
+              const labelAnchor = isFirstPoint ? "start" : isLatestPoint ? "end" : "middle";
+              const labelDx = isFirstPoint ? 6 : isLatestPoint ? -6 : 0;
 
               return `
-                ${highlightKeys.has(point.key) ? `<text class="startup-line-value" x="${point.x}" y="${labelY}" style="fill:${labelColor};font-weight:${isLatestPoint ? 800 : 700};">${point.value > 0 ? "+" : point.value < 0 ? "-" : ""}${formatNumber(Math.abs(point.value), 1)}%</text>` : ""}
+                ${highlightKeys.has(point.key) ? `<text class="startup-line-value" x="${point.x}" y="${labelY}" dx="${labelDx}" style="fill:${labelColor};font-weight:${isLatestPoint ? 800 : 700};text-anchor:${labelAnchor};">${point.value > 0 ? "+" : point.value < 0 ? "-" : ""}${formatNumber(Math.abs(point.value), 1)}%</text>` : ""}
                 ${highlightKeys.has(point.key) ? `<circle class="startup-line-point" cx="${point.x}" cy="${point.y}" r="${pointRadius}" style="fill:${pointFill};stroke-width:${isLatestPoint ? 2.5 : 2};">
                   <title>${point.label} ${formatSummaryValue(point)}</title>
                 </circle>` : ""}
@@ -4275,7 +4289,16 @@ function renderProductionLineChart({ title, subtitle = "", unitLabel = "", point
         </svg>
         <div class="startup-line-years">
           ${plotted
-            .map((point, index) => `<div class="startup-line-year">${formatQuarterAxisLabel(point.key, index === plotted.length - 1)}</div>`)
+            .map((point, index) => {
+              const classes = ["startup-line-year"];
+              if (index === 0) {
+                classes.push("is-first");
+              }
+              if (index === plotted.length - 1) {
+                classes.push("is-last");
+              }
+              return `<div class="${classes.join(" ")}" style="left:${(point.x / width) * 100}%;">${formatQuarterAxisLabel(point.key, index === plotted.length - 1)}</div>`;
+            })
             .join("")}
         </div>
       </div>

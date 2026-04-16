@@ -466,6 +466,7 @@ h2 {
 
 .info-section {
   padding: 18px;
+  min-width: 0;
 }
 
 .section-head {
@@ -473,6 +474,11 @@ h2 {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+  min-width: 0;
+}
+
+.section-head > * {
+  min-width: 0;
 }
 
 .section-head-secondary {
@@ -499,7 +505,8 @@ h2 {
 }
 
 .year-select {
-  min-width: 92px;
+  min-width: 0;
+  max-width: 100%;
   padding: 10px 12px;
   border: 1px solid rgba(44, 123, 229, 0.16);
   border-radius: 12px;
@@ -512,6 +519,7 @@ h2 {
 
 .year-select--wide {
   min-width: 188px;
+  max-width: 100%;
 }
 
 .section-refresh-button {
@@ -529,10 +537,12 @@ h2 {
   gap: 10px;
   align-items: flex-end;
   justify-content: flex-end;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .section-head-actions--inline {
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }
@@ -566,10 +576,14 @@ h2 {
   display: grid;
   gap: 12px;
   margin-top: 16px;
+  min-width: 0;
 }
 
 .startup-summary-card,
 .startup-chart-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 22px;
@@ -578,7 +592,9 @@ h2 {
 }
 
 .business-chart-card {
-  width: calc(100% - 12px);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   margin: 0 auto;
 }
 
@@ -597,6 +613,7 @@ h2 {
 .startup-summary-grid {
   display: grid;
   gap: 12px;
+  min-width: 0;
 }
 
 .startup-summary-grid--two-col {
@@ -622,6 +639,7 @@ h2 {
 .startup-metric {
   padding-top: 12px;
   border-top: 1px solid rgba(27, 77, 132, 0.08);
+  min-width: 0;
 }
 
 .startup-metric:first-child {
@@ -736,6 +754,7 @@ h2 {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.45;
+  min-width: 0;
 }
 
 .startup-share-label,
@@ -749,15 +768,21 @@ h2 {
   margin-top: 14px;
 }
 
+.startup-charts > * {
+  min-width: 0;
+}
+
 .startup-chart-head {
   display: grid;
   gap: 6px;
+  min-width: 0;
 }
 
 .startup-chart-title {
   font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.03em;
+  min-width: 0;
 }
 
 .startup-chart-subtitle {
@@ -819,6 +844,7 @@ h2 {
   color: var(--muted-strong);
   font-size: 12px;
   line-height: 1.5;
+  min-width: 0;
 }
 
 .startup-note-text--sub {
@@ -927,6 +953,8 @@ h2 {
   position: relative;
   margin-top: 18px;
   padding: 8px 4px 0;
+  width: 100%;
+  min-width: 0;
 }
 
 .startup-line-unit {
@@ -942,6 +970,7 @@ h2 {
 .startup-line-svg {
   display: block;
   width: 100%;
+  max-width: 100%;
   height: 180px;
   overflow: visible;
 }
@@ -996,18 +1025,32 @@ h2 {
 }
 
 .startup-line-years {
-  display: grid;
-  grid-template-columns: repeat(var(--bar-count, 1), minmax(0, 1fr));
-  gap: 10px;
+  position: relative;
   margin-top: 4px;
+  min-width: 0;
+  height: 16px;
 }
 
 .startup-line-year {
+  position: absolute;
+  top: 0;
   color: var(--muted);
   font-size: 11px;
   font-weight: 700;
   text-align: center;
+  min-width: 0;
   white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.startup-line-year.is-first {
+  text-align: left;
+  transform: translateX(0);
+}
+
+.startup-line-year.is-last {
+  text-align: right;
+  transform: translateX(-100%);
 }
 
 .loan-line-legend {
