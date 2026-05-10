@@ -31,8 +31,6 @@ const OPERATION_RATE_API_URL =
 const STARTUP_API_URL =
   "https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=ZDNhYjg4YmEwOTQzMGE1ZWFhOTA5NWQxMTI3YThiZGI=&itmId=16142T1&objL1=A1+A11+B1+C1+D1+F1+S11+S12+S13+S14+S15+S16+S17+S18+S19+S20+S21+S22+S23+Z1&objL2=&objL3=&objL4=&objL5=&objL6=&objL7=&objL8=&format=json&jsonVD=Y&prdSe=Y&startPrdDe=2016&endPrdDe=2025&outputFields=ORG_ID+TBL_NM+OBJ_NM+NM+ITM_NM+UNIT_NM+PRD_SE+PRD_DE+LST_CHN_DE+DT&orgId=142&tblId=DT_142N_F201";
 const STARTUP_CACHE_KEY = "startup_snapshot_v2";
-const STARTUP_JSON_URL = "./data/startup.json?v=20260417";
-const STARTUP_JSON_CACHE_KEY = "startup_json_payload_v1";
 const MANAGEMENT_GROWTH_API_URL =
   "https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=ZDNhYjg4YmEwOTQzMGE1ZWFhOTA5NWQxMTI3YThiZGI=&itmId=13103134632999&objL1=13102134632BZTYP_CD.ZZZ00&objL2=13102134632ENTERPRISE_SCALE.A+13102134632ENTERPRISE_SCALE.L+13102134632ENTERPRISE_SCALE.M&objL3=13102134632ACC_ITEM.506&format=json&jsonVD=Y&prdSe=Y&startPrdDe=2010&endPrdDe=2024&outputFields=ORG_ID+TBL_NM+OBJ_NM+NM+ITM_NM+UNIT_NM+PRD_SE+PRD_DE+LST_CHN_DE+DT&orgId=301&tblId=DT_501Y005";
 const MANAGEMENT_PROFIT_API_URL =
@@ -42,9 +40,6 @@ const MANAGEMENT_STABILITY_API_URL =
 const MANAGEMENT_GROWTH_CACHE_KEY = "management_growth_sales_snapshot_v1";
 const MANAGEMENT_PROFIT_CACHE_KEY = "management_profit_sales_op_snapshot_v1";
 const MANAGEMENT_STABILITY_CACHE_KEY = "management_stability_debt_snapshot_v3";
-const MANAGEMENT_JSON_URL = "./data/management.json?v=20260417";
-const MANAGEMENT_JSON_CACHE_KEY = "management_json_payload_v1";
-const MANAGEMENT_FALLBACK = {"growth":[{"year":"2010","category":"종합","value":15.26,"unit":"%"},{"year":"2011","category":"종합","value":12.18,"unit":"%"},{"year":"2012","category":"종합","value":5.11,"unit":"%"},{"year":"2013","category":"종합","value":2.07,"unit":"%"},{"year":"2014","category":"종합","value":1.26,"unit":"%"},{"year":"2015","category":"종합","value":0.26,"unit":"%"},{"year":"2016","category":"종합","value":2.57,"unit":"%"},{"year":"2017","category":"종합","value":9.19,"unit":"%"},{"year":"2018","category":"종합","value":3.99,"unit":"%"},{"year":"2019","category":"종합","value":0.44,"unit":"%"},{"year":"2020","category":"종합","value":-1.05,"unit":"%"},{"year":"2021","category":"종합","value":17.02,"unit":"%"},{"year":"2022","category":"종합","value":15.07,"unit":"%"},{"year":"2023","category":"종합","value":-1.52,"unit":"%"},{"year":"2024","category":"종합","value":3.65,"unit":"%"},{"year":"2010","category":"대기업","value":16.84,"unit":"%"},{"year":"2011","category":"대기업","value":13.13,"unit":"%"},{"year":"2012","category":"대기업","value":4.97,"unit":"%"},{"year":"2013","category":"대기업","value":-0.47,"unit":"%"},{"year":"2014","category":"대기업","value":-1.07,"unit":"%"},{"year":"2015","category":"대기업","value":-4.14,"unit":"%"},{"year":"2016","category":"대기업","value":-1.31,"unit":"%"},{"year":"2017","category":"대기업","value":7.93,"unit":"%"},{"year":"2018","category":"대기업","value":2.71,"unit":"%"},{"year":"2019","category":"대기업","value":-2.29,"unit":"%"},{"year":"2020","category":"대기업","value":-4.62,"unit":"%"},{"year":"2021","category":"대기업","value":16.63,"unit":"%"},{"year":"2022","category":"대기업","value":15.53,"unit":"%"},{"year":"2023","category":"대기업","value":-4.25,"unit":"%"},{"year":"2024","category":"대기업","value":3.39,"unit":"%"},{"year":"2010","category":"중소기업","value":13.17,"unit":"%"},{"year":"2011","category":"중소기업","value":10.83,"unit":"%"},{"year":"2012","category":"중소기업","value":5.33,"unit":"%"},{"year":"2013","category":"중소기업","value":6,"unit":"%"},{"year":"2014","category":"중소기업","value":4.67,"unit":"%"},{"year":"2015","category":"중소기업","value":7.55,"unit":"%"},{"year":"2016","category":"중소기업","value":8.59,"unit":"%"},{"year":"2017","category":"중소기업","value":11.02,"unit":"%"},{"year":"2018","category":"중소기업","value":5.89,"unit":"%"},{"year":"2019","category":"중소기업","value":4.21,"unit":"%"},{"year":"2020","category":"중소기업","value":3.87,"unit":"%"},{"year":"2021","category":"중소기업","value":17.56,"unit":"%"},{"year":"2022","category":"중소기업","value":14.39,"unit":"%"},{"year":"2023","category":"중소기업","value":2.82,"unit":"%"},{"year":"2024","category":"중소기업","value":4.07,"unit":"%"}],"profit":[{"year":"2009","category":"종합","value":4.61,"unit":"%"},{"year":"2010","category":"종합","value":5.3,"unit":"%"},{"year":"2011","category":"종합","value":4.49,"unit":"%"},{"year":"2012","category":"종합","value":4.11,"unit":"%"},{"year":"2013","category":"종합","value":4.14,"unit":"%"},{"year":"2014","category":"종합","value":3.96,"unit":"%"},{"year":"2015","category":"종합","value":4.7,"unit":"%"},{"year":"2016","category":"종합","value":5.42,"unit":"%"},{"year":"2017","category":"종합","value":6.11,"unit":"%"},{"year":"2018","category":"종합","value":5.64,"unit":"%"},{"year":"2019","category":"종합","value":4.21,"unit":"%"},{"year":"2020","category":"종합","value":4.24,"unit":"%"},{"year":"2021","category":"종합","value":5.58,"unit":"%"},{"year":"2022","category":"종합","value":4.53,"unit":"%"},{"year":"2023","category":"종합","value":3.48,"unit":"%"},{"year":"2024","category":"종합","value":4.59,"unit":"%"},{"year":"2009","category":"대기업","value":5.42,"unit":"%"},{"year":"2010","category":"대기업","value":6.44,"unit":"%"},{"year":"2011","category":"대기업","value":5.38,"unit":"%"},{"year":"2012","category":"대기업","value":5.39,"unit":"%"},{"year":"2013","category":"대기업","value":5.7,"unit":"%"},{"year":"2014","category":"대기업","value":5.4,"unit":"%"},{"year":"2015","category":"대기업","value":6.48,"unit":"%"},{"year":"2016","category":"대기업","value":7.44,"unit":"%"},{"year":"2017","category":"대기업","value":8.6,"unit":"%"},{"year":"2018","category":"대기업","value":7.97,"unit":"%"},{"year":"2019","category":"대기업","value":5.72,"unit":"%"},{"year":"2020","category":"대기업","value":5.78,"unit":"%"},{"year":"2021","category":"대기업","value":7.63,"unit":"%"},{"year":"2022","category":"대기업","value":5.91,"unit":"%"},{"year":"2023","category":"대기업","value":4.25,"unit":"%"},{"year":"2024","category":"대기업","value":5.59,"unit":"%"},{"year":"2009","category":"중소기업","value":3.45,"unit":"%"},{"year":"2010","category":"중소기업","value":3.71,"unit":"%"},{"year":"2011","category":"중소기업","value":3.12,"unit":"%"},{"year":"2012","category":"중소기업","value":3.1,"unit":"%"},{"year":"2013","category":"중소기업","value":3.41,"unit":"%"},{"year":"2014","category":"중소기업","value":3.42,"unit":"%"},{"year":"2015","category":"중소기업","value":3.58,"unit":"%"},{"year":"2016","category":"중소기업","value":3.85,"unit":"%"},{"year":"2017","category":"중소기업","value":3.96,"unit":"%"},{"year":"2018","category":"중소기업","value":3.45,"unit":"%"},{"year":"2019","category":"중소기업","value":3.41,"unit":"%"},{"year":"2020","category":"중소기업","value":3.47,"unit":"%"},{"year":"2021","category":"중소기업","value":3.54,"unit":"%"},{"year":"2022","category":"중소기업","value":3.49,"unit":"%"},{"year":"2023","category":"중소기업","value":3.21,"unit":"%"},{"year":"2024","category":"중소기업","value":3.03,"unit":"%"}],"stability":[{"year":"2009","category":"종합","value":158.67,"unit":"%"},{"year":"2010","category":"종합","value":150.14,"unit":"%"},{"year":"2011","category":"종합","value":152.74,"unit":"%"},{"year":"2012","category":"종합","value":147.6,"unit":"%"},{"year":"2013","category":"종합","value":140.98,"unit":"%"},{"year":"2014","category":"종합","value":134.53,"unit":"%"},{"year":"2015","category":"종합","value":128.36,"unit":"%"},{"year":"2016","category":"종합","value":121.15,"unit":"%"},{"year":"2017","category":"종합","value":114.07,"unit":"%"},{"year":"2018","category":"종합","value":111.12,"unit":"%"},{"year":"2019","category":"종합","value":115.64,"unit":"%"},{"year":"2020","category":"종합","value":118.34,"unit":"%"},{"year":"2021","category":"종합","value":120.31,"unit":"%"},{"year":"2022","category":"종합","value":122.33,"unit":"%"},{"year":"2023","category":"종합","value":120.79,"unit":"%"},{"year":"2024","category":"종합","value":119.85,"unit":"%"},{"year":"2009","category":"대기업","value":131.05,"unit":"%"},{"year":"2010","category":"대기업","value":124.53,"unit":"%"},{"year":"2011","category":"대기업","value":131.92,"unit":"%"},{"year":"2012","category":"대기업","value":128.17,"unit":"%"},{"year":"2013","category":"대기업","value":122.55,"unit":"%"},{"year":"2014","category":"대기업","value":111.89,"unit":"%"},{"year":"2015","category":"대기업","value":107.9,"unit":"%"},{"year":"2016","category":"대기업","value":100.09,"unit":"%"},{"year":"2017","category":"대기업","value":95.51,"unit":"%"},{"year":"2018","category":"대기업","value":92.11,"unit":"%"},{"year":"2019","category":"대기업","value":95.21,"unit":"%"},{"year":"2020","category":"대기업","value":97.31,"unit":"%"},{"year":"2021","category":"대기업","value":99.25,"unit":"%"},{"year":"2022","category":"대기업","value":101.21,"unit":"%"},{"year":"2023","category":"대기업","value":100.95,"unit":"%"},{"year":"2024","category":"대기업","value":101.48,"unit":"%"},{"year":"2009","category":"중소기업","value":226.73,"unit":"%"},{"year":"2010","category":"중소기업","value":218.3,"unit":"%"},{"year":"2011","category":"중소기업","value":207.08,"unit":"%"},{"year":"2012","category":"중소기업","value":197.95,"unit":"%"},{"year":"2013","category":"중소기업","value":187.54,"unit":"%"},{"year":"2014","category":"중소기업","value":193.56,"unit":"%"},{"year":"2015","category":"중소기업","value":187.7,"unit":"%"},{"year":"2016","category":"중소기업","value":181.27,"unit":"%"},{"year":"2017","category":"중소기업","value":163.18,"unit":"%"},{"year":"2018","category":"중소기업","value":159.49,"unit":"%"},{"year":"2019","category":"중소기업","value":161.93,"unit":"%"},{"year":"2020","category":"중소기업","value":166.33,"unit":"%"},{"year":"2021","category":"중소기업","value":169.12,"unit":"%"},{"year":"2022","category":"중소기업","value":171.27,"unit":"%"},{"year":"2023","category":"중소기업","value":166.85,"unit":"%"},{"year":"2024","category":"중소기업","value":162.65,"unit":"%"}]};
 const SME_COUNT_API_URL =
   "https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=ZDNhYjg4YmEwOTQzMGE1ZWFhOTA5NWQxMTI3YThiZGI=&itmId=T001&objL1=IM+IM_A+IM_B+IM_C+IM_D+IM_E+IM_F+IM_G+IM_H+IM_I+IM_J+IM_K+IM_L+IM_M+IM_N+IM_P+IM_Q+IM_R+IM_S&objL2=15142C501&objL3=16142T209+T002+T003&objL4=&objL5=&objL6=&objL7=&objL8=&format=json&jsonVD=Y&prdSe=Y&startPrdDe=2019&endPrdDe=2023&outputFields=ORG_ID+TBL_NM+OBJ_NM+NM+ITM_NM+UNIT_NM+PRD_SE+PRD_DE+LST_CHN_DE+&orgId=142&tblId=DT_BR_A001";
 const SME_EMPLOYEE_API_URL =
@@ -55,7 +50,6 @@ const SME_COUNT_CACHE_KEY = "sme_count_snapshot_v3";
 const SME_EMPLOYEE_CACHE_KEY = "sme_employee_snapshot_v3";
 const SME_SALES_CACHE_KEY = "sme_sales_snapshot_v3";
 const SME_PROFILE_CACHE_KEY = "sme_profile_snapshot_v1";
-const SME_PROFILE_JSON_URL = "./data/sme_profile.json?v=20260416";
 const LOAN_SHEET_CACHE_KEY = "loan_sheet_snapshot_v1";
 const DELINQUENCY_SHEET_CACHE_KEY = "loan_delinquency_sheet_snapshot_v1";
 const INVESTMENT_SHEET_CACHE_KEY = "investment_sheet_snapshot_v1";
@@ -64,18 +58,12 @@ const INVESTMENT_SECTOR_SHEET_CACHE_KEY = "investment_sector_sheet_snapshot_v1";
 const INVESTMENT_SOURCE_SHEET_CACHE_KEY = "investment_source_sheet_snapshot_v1";
 const LOAN_DATA_CACHE_KEY = "loan_data_snapshot_v1";
 const INVESTMENT_DATA_CACHE_KEY = "investment_data_snapshot_v1";
-const LOAN_JSON_URL = "./data/loan.json?v=20260417";
-const INVESTMENT_JSON_URL = "./data/investment.json?v=20260417";
-const LOAN_JSON_CACHE_KEY = "loan_json_payload_v1";
-const INVESTMENT_JSON_CACHE_KEY = "investment_json_payload_v1";
 const EXPORT_SUMMARY_API_URL =
   "https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=ZDNhYjg4YmEwOTQzMGE1ZWFhOTA5NWQxMTI3YThiZGI=&itmId=T10+T20+&objL1=01+&objL2=00+10+20+30+40+50+&objL3=&objL4=&objL5=&objL6=&objL7=&objL8=&format=json&jsonVD=Y&prdSe=Y&startPrdDe=2015&endPrdDe=2025&outputFields=ORG_ID+TBL_NM+OBJ_NM+NM+ITM_NM+UNIT_NM+PRD_SE+PRD_DE+LST_CHN_DE+&orgId=101&tblId=DT_1TEC_P116";
 const EXPORT_COUNTRY_API_URL =
   "https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=ZDNhYjg4YmEwOTQzMGE1ZWFhOTA5NWQxMTI3YThiZGI=&itmId=T20+&objL1=01+&objL2=10+11+12+13+14+15+1701+1702+1703+1704+1705+1706+1707+1708+1709+1710+1711+1712+1713+1714+1715+1716+1717+1718+1719+1720+1721+1722+1723+1724+1725+1726+1727+1728+1801+1802+1803+1804+1805+1806+1807+1901+1902+2001+2002+2003+2004+2005+2101+2301+2302+2303+2304+2305+2306+2307+&objL3=30+&objL4=&objL5=&objL6=&objL7=&objL8=&format=json&jsonVD=Y&prdSe=Y&startPrdDe=2015&endPrdDe=2025&outputFields=ORG_ID+TBL_NM+OBJ_NM+NM+ITM_NM+UNIT_NM+PRD_SE+PRD_DE+LST_CHN_DE+&orgId=101&tblId=DT_1TEC_P227";
 const EXPORT_SUMMARY_CACHE_KEY = "export_summary_snapshot_v2";
 const EXPORT_COUNTRY_CACHE_KEY = "export_country_snapshot_v3";
-const EXPORT_JSON_URL = "./data/export.json?v=20260417";
-const EXPORT_JSON_CACHE_KEY = "export_json_payload_v1";
 const HOME_SCREEN_SEEN_KEY = "dashboard_home_seen_v1";
 const LAST_ACTIVE_TAB_KEY = "dashboard_last_active_tab_v1";
 const FEELING_ACTUAL_API_URL_BASE =
@@ -84,10 +72,22 @@ const FEELING_OUTLOOK_API_URL_BASE =
   "https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=ZDNhYjg4YmEwOTQzMGE1ZWFhOTA5NWQxMTI3YThiZGI=&itmId=13103134488999&objL1=13102134488BUSINESS_TYPE_CD.X6000&format=json&jsonVD=Y&prdSe=M&startPrdDe=201501&endPrdDe=202604&outputFields=ORG_ID+TBL_ID+TBL_NM+OBJ_NM+NM+ITM_NM+UNIT_NM+PRD_SE+PRD_DE+LST_CHN_DE+DT&orgId=301&tblId=DT_512Y014";
 const FEELING_ACTUAL_CACHE_KEY = "feeling_bsi_actual_snapshot_v2";
 const FEELING_OUTLOOK_CACHE_KEY = "feeling_bsi_outlook_snapshot_v2";
-const FEELING_JSON_URL = "./data/feeling.json?v=20260417";
-const BUSINESS_JSON_URL = "./data/business.json?v=20260417";
-const FEELING_JSON_CACHE_KEY = "feeling_json_payload_v1";
-const BUSINESS_JSON_CACHE_KEY = "business_json_payload_v1";
+const STATIC_ROW_SOURCES = {
+  [STARTUP_CACHE_KEY]: ["startup.json", "rows"],
+  [LOAN_SHEET_CACHE_KEY]: ["loan.json", "loanRows"],
+  [DELINQUENCY_SHEET_CACHE_KEY]: ["loan.json", "delinquencyRows"],
+  [INVESTMENT_SHEET_CACHE_KEY]: ["investment.json", "investmentRows"],
+  [INVESTMENT_STAGE_SHEET_CACHE_KEY]: ["investment.json", "investmentStageRows"],
+  [INVESTMENT_SECTOR_SHEET_CACHE_KEY]: ["investment.json", "investmentSectorRows"],
+  [INVESTMENT_SOURCE_SHEET_CACHE_KEY]: ["investment.json", "investmentSourceRows"],
+  [EXPORT_SUMMARY_CACHE_KEY]: ["export.json", "rows"],
+  [EXPORT_COUNTRY_CACHE_KEY]: ["export.json", "countryRows"],
+  [FEELING_ACTUAL_CACHE_KEY]: ["feeling.json", "actualRows"],
+  [FEELING_OUTLOOK_CACHE_KEY]: ["feeling.json", "outlookRows"],
+  [MANAGEMENT_GROWTH_CACHE_KEY]: ["management.json", "growthRows"],
+  [MANAGEMENT_PROFIT_CACHE_KEY]: ["management.json", "profitRows"],
+  [MANAGEMENT_STABILITY_CACHE_KEY]: ["management.json", "stabilityRows"],
+};
 const FEELING_BSI_OPTIONS = [
   { label: "기업심리지수", code: "AX" },
   { label: "업황BSI", code: "AI" },
@@ -144,18 +144,14 @@ let businessDates = [];
 let productionSeries = [];
 let serviceProductionSeries = [];
 let operationRateSeries = [];
-let businessHasLoaded = false;
-let businessIsLoading = false;
 let feelingActualSeries = [];
 let feelingOutlookSeries = [];
 let feelingSelectedLabel = "기업심리지수";
 let feelingHasLoaded = false;
-let feelingIsLoading = false;
 let managementGrowthSeries = [];
 let managementProfitSeries = [];
 let managementStabilitySeries = [];
 let managementHasLoaded = false;
-let managementIsLoading = false;
 let smeLoadError = "";
 let startupLoadError = "";
 let loanLoadError = "";
@@ -166,6 +162,22 @@ let productionLoadError = "";
 let operationLoadError = "";
 let feelingLoadError = "";
 let managementLoadError = "";
+
+function getStaticDashboardFile(filename) {
+  const bundle = window.__DASHBOARD_STATIC_JSON__;
+  const payload = bundle && typeof bundle === "object" ? bundle[filename] : null;
+  return payload && typeof payload === "object" ? payload : null;
+}
+
+function getStaticDashboardRows(filename, key) {
+  const rows = getStaticDashboardFile(filename)?.[key];
+  return Array.isArray(rows) ? rows : [];
+}
+
+function getStaticRowsByCacheKey(cacheKey) {
+  const source = STATIC_ROW_SOURCES[cacheKey];
+  return source ? getStaticDashboardRows(source[0], source[1]) : [];
+}
 
 function formatClock(date = new Date()) {
   return new Intl.DateTimeFormat("ko-KR", {
@@ -334,99 +346,6 @@ function fetchJson(url) {
   });
 }
 
-function fetchStaticJson(url) {
-  return fetch(url).then((response) => {
-    if (!response.ok) {
-      throw new Error(`요청 실패: ${response.status}`);
-    }
-
-    return response.json();
-  });
-}
-
-function readStaticJsonCache(cacheKey) {
-  if (!cacheKey) {
-    return null;
-  }
-
-  try {
-    const raw = window.localStorage.getItem(cacheKey);
-    return raw ? JSON.parse(raw) : null;
-  } catch (error) {
-    return null;
-  }
-}
-
-function writeStaticJsonCache(cacheKey, payload) {
-  if (!cacheKey) {
-    return;
-  }
-
-  try {
-    window.localStorage.setItem(cacheKey, JSON.stringify(payload));
-  } catch (error) {
-    // Ignore storage errors.
-  }
-}
-
-function getBundledStaticJsonPayload(url) {
-  const bundle = window.__DASHBOARD_STATIC_JSON__;
-  if (!bundle || typeof bundle !== "object") {
-    return null;
-  }
-
-  const normalizedUrl = String(url || "").split("?")[0].split("#")[0];
-  const fileName = normalizedUrl.split("/").pop();
-  const payload = fileName ? bundle[fileName] : null;
-  return payload && typeof payload === "object" ? payload : null;
-}
-
-function createMemoizedStaticJsonLoader(url, cacheKey = "") {
-  let pendingPromise = null;
-
-  return async function loadStaticJsonPayload() {
-    const bundledPayload = getBundledStaticJsonPayload(url);
-    if (bundledPayload) {
-      writeStaticJsonCache(cacheKey, bundledPayload);
-      return bundledPayload;
-    }
-
-    if (!pendingPromise) {
-      pendingPromise = fetchStaticJson(url)
-        .then((payload) => {
-          writeStaticJsonCache(cacheKey, payload);
-          return payload;
-        })
-        .catch((error) => {
-          pendingPromise = null;
-          const cachedPayload = readStaticJsonCache(cacheKey);
-          if (cachedPayload) {
-            return cachedPayload;
-          }
-          throw error;
-        });
-    }
-
-    return pendingPromise;
-  };
-}
-
-function readStaticRows(payload, key, errorMessage) {
-  const rows = payload?.[key];
-  if (!Array.isArray(rows)) {
-    throw new Error(errorMessage);
-  }
-  return rows;
-}
-
-const loadStartupJsonPayload = createMemoizedStaticJsonLoader(STARTUP_JSON_URL, STARTUP_JSON_CACHE_KEY);
-const loadBusinessJsonPayload = createMemoizedStaticJsonLoader(BUSINESS_JSON_URL, BUSINESS_JSON_CACHE_KEY);
-const loadFeelingJsonPayload = createMemoizedStaticJsonLoader(FEELING_JSON_URL, FEELING_JSON_CACHE_KEY);
-const loadManagementJsonPayload = createMemoizedStaticJsonLoader(MANAGEMENT_JSON_URL, MANAGEMENT_JSON_CACHE_KEY);
-const loadExportJsonPayload = createMemoizedStaticJsonLoader(EXPORT_JSON_URL, EXPORT_JSON_CACHE_KEY);
-const loadLoanJsonPayload = createMemoizedStaticJsonLoader(LOAN_JSON_URL, LOAN_JSON_CACHE_KEY);
-const loadInvestmentJsonPayload = createMemoizedStaticJsonLoader(INVESTMENT_JSON_URL, INVESTMENT_JSON_CACHE_KEY);
-
 function extractJsonPayload(text) {
   const trimmed = String(text || "").trim();
   const arrayStart = trimmed.indexOf("[");
@@ -538,6 +457,11 @@ async function loadGoogleSheet(sheetName, options = {}) {
 }
 
 function readSheetSnapshot(cacheKey) {
+  const staticRows = getStaticRowsByCacheKey(cacheKey);
+  if (staticRows.length) {
+    return staticRows;
+  }
+
   try {
     const raw = window.localStorage.getItem(cacheKey);
     const parsed = raw ? JSON.parse(raw) : [];
@@ -701,37 +625,31 @@ async function loadSmeMetricApi(url, cacheKey) {
 
 function createSmeProfileDataset(smeCountRows, smeEmployeeRows, smeSalesRows) {
   return buildSmeDataset([
-    { rows: smeCountRows, config: { title: "기업수", unit: "개", color: "#2c7be5" } },
-    { rows: smeEmployeeRows, config: { title: "종사자수", unit: "명", color: "#4a9bff" } },
-    { rows: smeSalesRows, config: { title: "매출액", unit: "백만원", color: "#7fb8ff" } },
+    { rows: smeCountRows, config: { title: "湲곗뾽??", unit: "媛?", color: "#2c7be5" } },
+    { rows: smeEmployeeRows, config: { title: "醫낆궗?먯닔", unit: "紐?", color: "#4a9bff" } },
+    { rows: smeSalesRows, config: { title: "留ㅼ텧??", unit: "諛깅쭔??", color: "#7fb8ff" } },
   ]);
 }
 
-function normalizeSmeProfilePayload(payload) {
-  if (Array.isArray(payload?.nextData) && Array.isArray(payload?.nextYears)) {
-    return {
-      nextData: payload.nextData,
-      nextYears: payload.nextYears,
-    };
+function readCachedSmeProfileData() {
+  const staticPayload = getStaticDashboardFile("sme_profile.json");
+  if (Array.isArray(staticPayload?.nextData) && Array.isArray(staticPayload?.nextYears)) {
+    return staticPayload;
   }
 
-  throw new Error("위상 JSON 데이터 형식을 확인해 주세요.");
-}
-
-async function loadSmeProfileJson() {
-  const payload = await fetchStaticJson(SME_PROFILE_JSON_URL);
-  return normalizeSmeProfilePayload(payload);
-}
-
-function readCachedSmeProfileData() {
   try {
     const raw = window.localStorage.getItem(SME_PROFILE_CACHE_KEY);
     if (raw) {
-      return normalizeSmeProfilePayload(JSON.parse(raw));
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed?.nextData) && Array.isArray(parsed?.nextYears)) {
+        return parsed;
+      }
     }
   } catch (error) {
     // Ignore local cache errors.
   }
+
+  return null;
 
   const smeCountRows = readSmeMetricSnapshot(SME_COUNT_CACHE_KEY);
   const smeEmployeeRows = readSmeMetricSnapshot(SME_EMPLOYEE_CACHE_KEY);
@@ -760,27 +678,17 @@ function writeCachedSmeProfileData(nextData, nextYears) {
 }
 
 async function loadSmeProfileData() {
-  try {
-    const payload = await loadSmeProfileJson();
-    writeCachedSmeProfileData(payload.nextData, payload.nextYears);
-    return payload;
-  } catch (jsonError) {
-    // Fall back to the live API path if the local snapshot is unavailable.
-  }
-
   const [smeCountRows, smeEmployeeRows, smeSalesRows] = await Promise.all([
     loadSmeMetricApi(SME_COUNT_API_URL, SME_COUNT_CACHE_KEY),
     loadSmeMetricApi(SME_EMPLOYEE_API_URL, SME_EMPLOYEE_CACHE_KEY),
     loadSmeMetricApi(SME_SALES_API_URL, SME_SALES_CACHE_KEY),
   ]);
 
-  const payload = buildSmeDataset([
+  return buildSmeDataset([
     { rows: smeCountRows, config: { title: "기업수", unit: "개", color: "#2c7be5" } },
     { rows: smeEmployeeRows, config: { title: "종사자수", unit: "명", color: "#4a9bff" } },
     { rows: smeSalesRows, config: { title: "매출액", unit: "백만원", color: "#7fb8ff" } },
   ]);
-  writeCachedSmeProfileData(payload.nextData, payload.nextYears);
-  return payload;
 }
 
 function getSmeIndustryTopFive(item, year) {
@@ -950,10 +858,20 @@ async function refreshLoanData() {
 
   try {
     loanLoadError = "";
-    const { nextLoanSeries, nextDelinquencySeries, nextLoanYears } = await loadLoanData();
-    loanSeries = nextLoanSeries;
-    delinquencySeries = nextDelinquencySeries;
-    loanYears = nextLoanYears;
+    const [loanSheetRows, delinquencySheetRows] = await Promise.all([
+      loadGoogleSheetWithCache("", LOAN_SHEET_CACHE_KEY, {
+        baseUrl: LOAN_SHEET_BASE_URL,
+        openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
+      }),
+      loadGoogleSheetWithCache("연체율", DELINQUENCY_SHEET_CACHE_KEY, {
+        baseUrl: LOAN_SHEET_BASE_URL,
+        openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
+      }),
+    ]);
+
+    loanSeries = parseLoanRows(loanSheetRows);
+    delinquencySeries = parseDelinquencyRows(delinquencySheetRows);
+    loanYears = [...new Set([...loanSeries.map((item) => item.year), ...delinquencySeries.map((item) => item.year)])].sort((a, b) => a - b);
     writeCachedLoanData();
     initLoanYearSelect();
     renderLoanSummary();
@@ -981,12 +899,68 @@ async function refreshInvestmentData() {
 
   try {
     investmentLoadError = "";
-    const payload = await loadInvestmentData();
-    investmentSeries = payload.investmentSeries;
-    investmentStageSeries = payload.investmentStageSeries;
-    investmentSectorSeries = payload.investmentSectorSeries;
-    investmentSourceSeries = payload.investmentSourceSeries;
-    investmentDates = payload.investmentDates;
+    const [
+      investmentSheetRows,
+      investmentStageSheetRows,
+      investmentSectorSheetRows,
+      investmentSourceSheetRows,
+    ] = await Promise.all([
+      loadGoogleSheetWithCache("투자", INVESTMENT_SHEET_CACHE_KEY, {
+        baseUrl: LOAN_SHEET_BASE_URL,
+        openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
+      }),
+      loadGoogleSheetWithCache("업력별투자", INVESTMENT_STAGE_SHEET_CACHE_KEY, {
+        baseUrl: LOAN_SHEET_BASE_URL,
+        openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
+      }),
+      loadGoogleSheetWithCache("업종별투자", INVESTMENT_SECTOR_SHEET_CACHE_KEY, {
+        baseUrl: LOAN_SHEET_BASE_URL,
+        openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
+      }),
+      loadGoogleSheetWithCache("출자자별", INVESTMENT_SOURCE_SHEET_CACHE_KEY, {
+        baseUrl: LOAN_SHEET_BASE_URL,
+        openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
+      }),
+    ]);
+
+    investmentSeries = parseInvestmentRows(investmentSheetRows, [
+      "신규 벤처투자금액",
+      "피투자기업 수",
+      "기업당 투자금액",
+      "벤처펀드 결정금액",
+      "벤처펀드 결성 수",
+    ]);
+    investmentStageSeries = parseInvestmentRows(investmentStageSheetRows, [
+      "초기 투자(3년 이내)",
+      "중기 투자(3~7년 이내)",
+      "후기 투자(7년 초과)",
+    ]);
+    investmentSectorSeries = parseInvestmentRows(investmentSectorSheetRows, [
+      "ICT서비스",
+      "바이오·의료",
+      "전기·기계·장비",
+      "ICT제조",
+      "유통·서비스",
+      "화학·소재",
+      "영상·공연·음반",
+      "게임",
+      "기타",
+    ]);
+    investmentSourceSeries = parseInvestmentRows(investmentSourceSheetRows, [
+      "정책금융",
+      "모태펀드",
+      "성장금융",
+      "산업은행",
+      "기타 정책금융",
+      "민간부문",
+      "개인",
+      "일반법인",
+      "금융기관(산은 제외)",
+      "연기금 및 공제회",
+      "VC",
+      "기타단체 및 외국인",
+    ]);
+    investmentDates = investmentSeries.map((item) => item.key);
     writeCachedInvestmentData();
     initInvestmentDateSelect();
     renderInvestmentSummary();
@@ -1076,6 +1050,11 @@ function parseStartupRows(rows) {
 }
 
 function readStartupSnapshot() {
+  const staticRows = getStaticRowsByCacheKey(STARTUP_CACHE_KEY);
+  if (staticRows.length) {
+    return parseStartupRows(staticRows);
+  }
+
   try {
     const raw = window.localStorage.getItem(STARTUP_CACHE_KEY);
     if (!raw) {
@@ -1098,10 +1077,24 @@ function writeStartupSnapshot(rows) {
 
 async function loadStartupData() {
   try {
-    const payload = await loadStartupJsonPayload();
-    const rawRows = readStaticRows(payload, "rows", "창업 JSON 데이터 형식을 확인해 주세요.");
-    const rows = parseStartupRows(rawRows);
-    writeStartupSnapshot(rawRows);
+    let payload;
+
+    try {
+      payload = await fetchJson(STARTUP_API_URL);
+    } catch (directError) {
+      payload = await fetchJsonViaProxy(STARTUP_API_URL);
+    }
+
+    if (!Array.isArray(payload)) {
+      if (payload?.err) {
+        throw new Error(payload.errMsg || `KOSIS 오류 코드 ${payload.err}`);
+      }
+
+      throw new Error("KOSIS 창업 데이터 형식을 확인해 주세요.");
+    }
+
+    const rows = parseStartupRows(payload);
+    writeStartupSnapshot(payload);
     return rows;
   } catch (error) {
     const cachedRows = readStartupSnapshot();
@@ -1246,15 +1239,8 @@ function parseOperationRows(rows) {
 
   const deduped = new Map();
   rows.forEach((row) => {
-    const category = String(
-      row?.C1_NM
-      || row?.c1_nm
-      || row?.ITM_NM
-      || row?.itm_nm
-      || "제조업 계절조정",
-    ).trim();
-    const normalizedCategory = category === "평균가동률" ? "제조업 계절조정" : category;
-    if (normalizedCategory !== "제조업 계절조정") {
+    const category = String(row?.C1_NM || row?.c1_nm || "").trim();
+    if (category !== "제조업 계절조정") {
       return;
     }
 
@@ -1271,7 +1257,7 @@ function parseOperationRows(rows) {
       date,
       value,
       unit: String(row?.UNIT_NM || row?.unit_nm || "").trim(),
-      itemName: normalizedCategory,
+      itemName: category,
       lastChanged: String(row?.LST_CHN_DE || row?.lst_chn_de || "").trim(),
     });
   });
@@ -1395,66 +1381,126 @@ function parseManagementGrowthRows(rows) {
 }
 
 async function loadBusinessCycleData() {
+  const staticRows = getStaticDashboardRows("business.json", "businessCycleRows");
+  if (staticRows.length) {
+    return parseBusinessRows(staticRows);
+  }
+
   try {
-    const payload = await loadBusinessJsonPayload();
-    const rows = parseBusinessRows(
-      readStaticRows(payload, "businessCycleRows", "실물경기 JSON 데이터 형식을 확인해 주세요."),
-    );
-    return rows.length ? rows : parseBusinessSnapshot(BUSINESS_CYCLE_SNAPSHOT, "동행지수 순환변동치");
+    const payload = await fetchJson(BUSINESS_CYCLE_API_URL);
+
+    if (!Array.isArray(payload)) {
+      if (payload?.err) {
+        throw new Error(payload.errMsg || `KOSIS 오류 코드 ${payload.err}`);
+      }
+
+      throw new Error("KOSIS 경기 데이터 형식을 확인해 주세요.");
+    }
+
+    return parseBusinessRows(payload);
   } catch (error) {
     return parseBusinessSnapshot(BUSINESS_CYCLE_SNAPSHOT, "동행지수 순환변동치");
   }
 }
 
 async function loadBusinessCompositeData() {
+  const staticRows = getStaticDashboardRows("business.json", "businessCompositeRows");
+  if (staticRows.length) {
+    return parseBusinessRows(staticRows);
+  }
+
   try {
-    const payload = await loadBusinessJsonPayload();
-    const rows = parseBusinessRows(
-      readStaticRows(payload, "businessCompositeRows", "실물경기 JSON 데이터 형식을 확인해 주세요."),
-    );
-    return rows.length ? rows : parseBusinessSnapshot(BUSINESS_COMPOSITE_SNAPSHOT, "동행종합지수");
+    const payload = await fetchJson(BUSINESS_COMPOSITE_API_URL);
+
+    if (!Array.isArray(payload)) {
+      if (payload?.err) {
+        throw new Error(payload.errMsg || `KOSIS 오류 코드 ${payload.err}`);
+      }
+
+      throw new Error("KOSIS 경기 데이터 형식을 확인해 주세요.");
+    }
+
+    return parseBusinessRows(payload);
   } catch (error) {
     return parseBusinessSnapshot(BUSINESS_COMPOSITE_SNAPSHOT, "동행종합지수");
   }
 }
 
 async function loadProductionData() {
+  const staticRows = getStaticDashboardRows("business.json", "productionRows");
+  if (staticRows.length) {
+    return parseProductionRows(staticRows);
+  }
+
   try {
-    const payload = await loadBusinessJsonPayload();
-    const rows = parseProductionRows(
-      readStaticRows(payload, "productionRows", "실물경기 JSON 데이터 형식을 확인해 주세요."),
-    );
-    return rows.length ? rows : parseProductionSnapshot(PRODUCTION_SNAPSHOT, "중소기업생산지수");
+    const payload = await fetchJson(PRODUCTION_API_URL);
+
+    if (!Array.isArray(payload)) {
+      if (payload?.err) {
+        throw new Error(payload.errMsg || `KOSIS 오류 코드 ${payload.err}`);
+      }
+
+      throw new Error("KOSIS 생산지수 데이터 형식을 확인해 주세요.");
+    }
+
+    return parseProductionRows(payload);
   } catch (error) {
     return parseProductionSnapshot(PRODUCTION_SNAPSHOT, "중소기업생산지수");
   }
 }
 
 async function loadServiceProductionData() {
+  const staticRows = getStaticDashboardRows("business.json", "serviceProductionRows");
+  if (staticRows.length) {
+    return parseProductionRows(staticRows);
+  }
+
   try {
-    const payload = await loadBusinessJsonPayload();
-    const rows = parseProductionRows(
-      readStaticRows(payload, "serviceProductionRows", "실물경기 JSON 데이터 형식을 확인해 주세요."),
-    );
-    return rows.length ? rows : parseProductionSnapshot(SERVICE_PRODUCTION_SNAPSHOT, "중소기업서비스업생산지수");
+    const payload = await fetchJson(SERVICE_PRODUCTION_API_URL);
+
+    if (!Array.isArray(payload)) {
+      if (payload?.err) {
+        throw new Error(payload.errMsg || `KOSIS 오류 코드 ${payload.err}`);
+      }
+
+      throw new Error("KOSIS 서비스업 생산지수 데이터 형식을 확인해 주세요.");
+    }
+
+    return parseProductionRows(payload);
   } catch (error) {
     return parseProductionSnapshot(SERVICE_PRODUCTION_SNAPSHOT, "중소기업서비스업생산지수");
   }
 }
 
 async function loadOperationRateData() {
+  const staticRows = getStaticDashboardRows("business.json", "operationRows");
+  if (staticRows.length) {
+    return parseOperationRows(staticRows);
+  }
+
   try {
-    const payload = await loadBusinessJsonPayload();
-    const rows = parseOperationRows(
-      readStaticRows(payload, "operationRows", "실물경기 JSON 데이터 형식을 확인해 주세요."),
-    );
-    return rows.length ? rows : parseOperationSnapshot(OPERATION_RATE_SNAPSHOT, "제조업 계절조정");
+    const payload = await fetchJson(OPERATION_RATE_API_URL);
+
+    if (!Array.isArray(payload)) {
+      if (payload?.err) {
+        throw new Error(payload.errMsg || `KOSIS 오류 코드 ${payload.err}`);
+      }
+
+      throw new Error("KOSIS 평균가동률 데이터 형식을 확인해 주세요.");
+    }
+
+    return parseOperationRows(payload);
   } catch (error) {
     return parseOperationSnapshot(OPERATION_RATE_SNAPSHOT, "제조업 계절조정");
   }
 }
 
 function readFeelingSnapshot(cacheKey) {
+  const staticRows = getStaticRowsByCacheKey(cacheKey);
+  if (staticRows.length) {
+    return parseFeelingRows(staticRows);
+  }
+
   try {
     const raw = window.localStorage.getItem(cacheKey);
     if (!raw) {
@@ -1528,14 +1574,29 @@ function hydrateFeelingFromCache() {
 }
 
 async function loadFeelingSeries({ url, cacheKey }) {
+  const staticRows = getStaticRowsByCacheKey(cacheKey);
+  if (staticRows.length) {
+    return parseFeelingRows(staticRows);
+  }
+
   try {
-    const payload = await loadFeelingJsonPayload();
-    const rawRows = readStaticRows(
-      payload,
-      cacheKey === FEELING_ACTUAL_CACHE_KEY ? "actualRows" : "outlookRows",
-      "체감경기 JSON 데이터 형식을 확인해 주세요.",
-    );
-    const rows = parseFeelingRows(rawRows);
+    let payload;
+
+    try {
+      payload = await fetchJson(url);
+    } catch (directError) {
+      payload = await fetchJsonViaProxy(url);
+    }
+
+    if (!Array.isArray(payload)) {
+      if (payload?.err) {
+        throw new Error(payload.errMsg || `KOSIS 오류 코드 ${payload.err}`);
+      }
+
+      throw new Error("KOSIS 기업심리지수 데이터 형식을 확인해 주세요.");
+    }
+
+    const rows = parseFeelingRows(payload);
     writeFeelingSnapshot(cacheKey, rows);
     return rows;
   } catch (error) {
@@ -1563,6 +1624,11 @@ async function loadFeelingOutlookData() {
 }
 
 function readManagementGrowthSnapshot() {
+  const staticRows = getStaticRowsByCacheKey(MANAGEMENT_GROWTH_CACHE_KEY);
+  if (staticRows.length) {
+    return parseManagementGrowthRows(staticRows);
+  }
+
   try {
     const raw = window.localStorage.getItem(MANAGEMENT_GROWTH_CACHE_KEY);
     if (!raw) {
@@ -1585,9 +1651,23 @@ function writeManagementGrowthSnapshot(rows) {
 
 async function loadManagementGrowthData() {
   try {
-    const payload = await loadManagementJsonPayload();
-    const rawRows = readStaticRows(payload, "growthRows", "경영지표 JSON 데이터 형식을 확인해 주세요.");
-    const rows = parseManagementGrowthRows(rawRows);
+    let payload;
+
+    try {
+      payload = await fetchJson(MANAGEMENT_GROWTH_API_URL);
+    } catch (directError) {
+      payload = await fetchJsonViaProxy(MANAGEMENT_GROWTH_API_URL);
+    }
+
+    if (!Array.isArray(payload)) {
+      if (payload?.err) {
+        throw new Error(payload.errMsg || `KOSIS 오류 코드 ${payload.err}`);
+      }
+
+      throw new Error("KOSIS 경영지표 데이터 형식을 확인해 주세요.");
+    }
+
+    const rows = parseManagementGrowthRows(payload);
     writeManagementGrowthSnapshot(rows);
     return rows;
   } catch (error) {
@@ -1596,11 +1676,16 @@ async function loadManagementGrowthData() {
       return cachedRows;
     }
 
-    return MANAGEMENT_FALLBACK.growth;
+    throw error;
   }
 }
 
 function readManagementMetricSnapshot(cacheKey) {
+  const staticRows = getStaticRowsByCacheKey(cacheKey);
+  if (staticRows.length) {
+    return parseManagementGrowthRows(staticRows);
+  }
+
   try {
     const raw = window.localStorage.getItem(cacheKey);
     if (!raw) {
@@ -1623,13 +1708,23 @@ function writeManagementMetricSnapshot(cacheKey, rows) {
 
 async function loadManagementMetricData(url, cacheKey) {
   try {
-    const payload = await loadManagementJsonPayload();
-    const rawRows = readStaticRows(
-      payload,
-      cacheKey === MANAGEMENT_PROFIT_CACHE_KEY ? "profitRows" : "stabilityRows",
-      "경영지표 JSON 데이터 형식을 확인해 주세요.",
-    );
-    const rows = parseManagementGrowthRows(rawRows);
+    let payload;
+
+    try {
+      payload = await fetchJson(url);
+    } catch (directError) {
+      payload = await fetchJsonViaProxy(url);
+    }
+
+    if (!Array.isArray(payload)) {
+      if (payload?.err) {
+        throw new Error(payload.errMsg || `KOSIS 오류 코드 ${payload.err}`);
+      }
+
+      throw new Error("KOSIS 경영지표 데이터 형식을 확인해 주세요.");
+    }
+
+    const rows = parseManagementGrowthRows(payload);
     writeManagementMetricSnapshot(cacheKey, rows);
     return rows;
   } catch (error) {
@@ -1638,9 +1733,7 @@ async function loadManagementMetricData(url, cacheKey) {
       return cachedRows;
     }
 
-    return cacheKey === MANAGEMENT_PROFIT_CACHE_KEY
-      ? MANAGEMENT_FALLBACK.profit
-      : MANAGEMENT_FALLBACK.stability;
+    throw error;
   }
 }
 
@@ -1696,16 +1789,9 @@ async function refreshBusinessData() {
   });
 
   try {
-    businessIsLoading = true;
     businessLoadError = "";
     productionLoadError = "";
     operationLoadError = "";
-    renderBusinessSummary();
-    renderBusinessCharts();
-    renderProductionSummary();
-    renderProductionCharts();
-    renderOperationSummary();
-    renderOperationCharts();
     const [businessCompositeRows, businessCycleRows, productionRows, serviceProductionRows, operationRows] = await Promise.all([
       loadBusinessCompositeData(),
       loadBusinessCycleData(),
@@ -1720,13 +1806,6 @@ async function refreshBusinessData() {
     productionSeries = productionRows;
     serviceProductionSeries = serviceProductionRows;
     operationRateSeries = operationRows;
-    businessHasLoaded = Boolean(
-      businessCompositeRows.length
-      || businessCycleRows.length
-      || productionRows.length
-      || serviceProductionRows.length
-      || operationRows.length
-    );
     renderBusinessSummary();
     renderBusinessCharts();
     renderProductionSummary();
@@ -1734,7 +1813,6 @@ async function refreshBusinessData() {
     renderOperationSummary();
     renderOperationCharts();
   } catch (error) {
-    businessHasLoaded = false;
     businessLoadError = `오류: ${error.message}`;
     productionLoadError = `오류: ${error.message}`;
     operationLoadError = `오류: ${error.message}`;
@@ -1745,7 +1823,6 @@ async function refreshBusinessData() {
     renderOperationSummary();
     renderOperationCharts();
   } finally {
-    businessIsLoading = false;
     buttons.forEach((button, index) => {
       button.disabled = false;
       button.textContent = previousTexts[index];
@@ -2252,32 +2329,6 @@ function readCachedLoanData() {
   };
 }
 
-async function loadLoanData() {
-  try {
-    const payload = await loadLoanJsonPayload();
-    const loanRows = readStaticRows(payload, "loanRows", "대출 JSON 데이터 형식을 확인해 주세요.");
-    const delinquencyRows = readStaticRows(payload, "delinquencyRows", "대출 JSON 데이터 형식을 확인해 주세요.");
-    const nextLoanSeries = parseLoanRows(loanRows);
-    const nextDelinquencySeries = parseDelinquencyRows(delinquencyRows);
-    const nextLoanYears = [...new Set([...nextLoanSeries.map((item) => item.year), ...nextDelinquencySeries.map((item) => item.year)])].sort((a, b) => a - b);
-    return {
-      nextLoanSeries,
-      nextDelinquencySeries,
-      nextLoanYears,
-    };
-  } catch (error) {
-    const cached = readCachedLoanData();
-    if (cached) {
-      return {
-        nextLoanSeries: cached.loanSeries,
-        nextDelinquencySeries: cached.delinquencySeries,
-        nextLoanYears: cached.loanYears,
-      };
-    }
-    throw error;
-  }
-}
-
 function writeCachedLoanData() {
   writeProcessedSnapshot(LOAN_DATA_CACHE_KEY, {
     loanSeries: serializeSeriesWithDate(loanSeries),
@@ -2314,67 +2365,6 @@ function readCachedInvestmentData() {
     investmentSourceSeries: nextInvestmentSourceSeries,
     investmentDates: nextInvestmentDates,
   };
-}
-
-async function loadInvestmentData() {
-  try {
-    const payload = await loadInvestmentJsonPayload();
-    const investmentSheetRows = readStaticRows(payload, "investmentRows", "투자 JSON 데이터 형식을 확인해 주세요.");
-    const investmentStageSheetRows = readStaticRows(payload, "investmentStageRows", "투자 JSON 데이터 형식을 확인해 주세요.");
-    const investmentSectorSheetRows = readStaticRows(payload, "investmentSectorRows", "투자 JSON 데이터 형식을 확인해 주세요.");
-    const investmentSourceSheetRows = readStaticRows(payload, "investmentSourceRows", "투자 JSON 데이터 형식을 확인해 주세요.");
-    const investmentSeries = parseInvestmentRows(investmentSheetRows, [
-      "신규 벤처투자금액",
-      "피투자기업 수",
-      "기업당 투자금액",
-      "벤처펀드 결정금액",
-      "벤처펀드 결성 수",
-    ]);
-    const investmentStageSeries = parseInvestmentRows(investmentStageSheetRows, [
-      "초기 투자(3년 이내)",
-      "중기 투자(3~7년 이내)",
-      "후기 투자(7년 초과)",
-    ]);
-    const investmentSectorSeries = parseInvestmentRows(investmentSectorSheetRows, [
-      "ICT서비스",
-      "바이오·의료",
-      "전기·기계·장비",
-      "ICT제조",
-      "유통·서비스",
-      "화학·소재",
-      "영상·공연·음반",
-      "게임",
-      "기타",
-    ]);
-    const investmentSourceSeries = parseInvestmentRows(investmentSourceSheetRows, [
-      "정책금융",
-      "모태펀드",
-      "성장금융",
-      "산업은행",
-      "기타 정책금융",
-      "민간부문",
-      "개인",
-      "일반법인",
-      "금융기관(산은 제외)",
-      "연기금 및 공제회",
-      "VC",
-      "기타단체 및 외국인",
-    ]);
-    const investmentDates = investmentSeries.map((item) => item.key);
-    return {
-      investmentSeries,
-      investmentStageSeries,
-      investmentSectorSeries,
-      investmentSourceSeries,
-      investmentDates,
-    };
-  } catch (error) {
-    const cached = readCachedInvestmentData();
-    if (cached) {
-      return cached;
-    }
-    throw error;
-  }
 }
 
 function writeCachedInvestmentData() {
@@ -2586,6 +2576,11 @@ function parseExportCountryRows(rows, valueKeys) {
 }
 
 function readExportSnapshot(cacheKey) {
+  const staticRows = getStaticRowsByCacheKey(cacheKey);
+  if (staticRows.length) {
+    return staticRows;
+  }
+
   try {
     const raw = window.localStorage.getItem(cacheKey);
     return raw ? JSON.parse(raw) : [];
@@ -2604,14 +2599,24 @@ function writeExportSnapshot(cacheKey, rows) {
 
 async function loadExportApi(url, cacheKey) {
   try {
-    const payload = await loadExportJsonPayload();
-    const rawRows = readStaticRows(
-      payload,
-      cacheKey === EXPORT_SUMMARY_CACHE_KEY ? "summaryRows" : "countryRows",
-      "수출 JSON 데이터 형식을 확인해 주세요.",
-    );
-    writeExportSnapshot(cacheKey, rawRows);
-    return rawRows;
+    let payload;
+
+    try {
+      payload = await fetchJson(url);
+    } catch (directError) {
+      payload = await fetchJsonViaProxy(url);
+    }
+
+    if (!Array.isArray(payload)) {
+      if (payload?.err) {
+        throw new Error(payload.errMsg || `KOSIS 오류 코드 ${payload.err}`);
+      }
+
+      throw new Error("KOSIS 수출 데이터 형식을 확인해 주세요.");
+    }
+
+    writeExportSnapshot(cacheKey, payload);
+    return payload;
   } catch (error) {
     const cachedRows = readExportSnapshot(cacheKey);
     if (cachedRows.length) {
@@ -3200,6 +3205,10 @@ function renderSmeData() {
                   .map((year) => `<option value="${year}"${year === selectedYear ? " selected" : ""}>${year}</option>`)
                   .join("")}
               </select>
+              <div class="page-refresh-wrap section-refresh-wrap">
+                <button class="icon-refresh-button section-refresh-button sme-refresh-button-instance" type="button">새로고침</button>
+                <div class="page-refresh-label">(새로고침)</div>
+              </div>
             </div>
           </div>
           <div class="startup-summary">
@@ -3289,6 +3298,10 @@ function renderSmeData() {
       renderSmeData();
       renderSmeCharts();
     });
+  });
+
+  smeGrid.querySelectorAll(".sme-refresh-button-instance").forEach((button) => {
+    button.addEventListener("click", refreshSmeData);
   });
 
   smeCharts.innerHTML = "";
@@ -3964,19 +3977,10 @@ function renderBusinessSummary() {
   const summary = document.getElementById("business-summary");
 
   if (!businessSeries.length && !businessCompositeSeries.length) {
-    if (!businessHasLoaded && !businessLoadError) {
-      summary.innerHTML = `
-        <article class="startup-summary-card">
-          <div class="startup-value startup-value--loading">경기 데이터를 불러오는 중입니다.</div>
-        </article>
-      `;
-      return;
-    }
-
     summary.innerHTML = `
       <article class="startup-summary-card">
         <div class="startup-value">경기 데이터를 불러오지 못했습니다.</div>
-        <div class="startup-subvalue">${businessLoadError || "로컬 JSON 데이터 구성을 확인해 주세요."}</div>
+        <div class="startup-subvalue">${businessLoadError || "KOSIS OpenAPI 설정을 확인해 주세요."}</div>
       </article>
     `;
     return;
@@ -4035,15 +4039,14 @@ function renderBusinessLineChart({
   const range = maxValue - minValue || 1;
   const width = 320;
   const height = 150;
-  const paddingLeft = 24;
-  const paddingRight = 42;
+  const paddingX = 22;
   const paddingTop = 26;
   const paddingBottom = 18;
-  const usableWidth = width - paddingLeft - paddingRight;
+  const usableWidth = width - paddingX * 2;
   const usableHeight = height - paddingTop - paddingBottom;
 
   const plotted = points.map((item, index) => ({
-    x: points.length === 1 ? (paddingLeft + width - paddingRight) / 2 : paddingLeft + (usableWidth / (points.length - 1)) * index,
+    x: points.length === 1 ? width / 2 : paddingX + (usableWidth / (points.length - 1)) * index,
     y: paddingTop + (1 - (item.value - minValue) / range) * usableHeight,
     value: item.value,
     label: formatBusinessPeriod(item.key),
@@ -4073,11 +4076,11 @@ function renderBusinessLineChart({
           <span class="startup-chart-summary-item is-yellow">최근: ${formatSummaryValue(latestPoint)}</span>
         </div>
       </div>
-      <div class="startup-line-chart">
+      <div class="startup-line-chart" style="--bar-count:${points.length};">
         <svg class="startup-line-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">
-          <line class="startup-line-grid" x1="${paddingLeft}" y1="${height - paddingBottom}" x2="${width - paddingRight}" y2="${height - paddingBottom}"></line>
-          ${referenceY === null ? "" : `<line class="startup-line-reference" x1="${paddingLeft}" y1="${referenceY}" x2="${width - paddingRight}" y2="${referenceY}"></line>`}
-          ${referenceY === null ? "" : `<text class="startup-line-reference-label" x="${width - paddingRight}" y="${Math.max(12, referenceY - 6)}">(2015=100)</text>`}
+          <line class="startup-line-grid" x1="${paddingX}" y1="${height - paddingBottom}" x2="${width - paddingX}" y2="${height - paddingBottom}"></line>
+          ${referenceY === null ? "" : `<line class="startup-line-reference" x1="${paddingX}" y1="${referenceY}" x2="${width - paddingX}" y2="${referenceY}"></line>`}
+          ${referenceY === null ? "" : `<text class="startup-line-reference-label" x="${width - paddingX}" y="${Math.max(12, referenceY - 6)}">(2015=100)</text>`}
           <path class="startup-line-path" d="${path}" style="stroke:${color};"></path>
           ${plotted
             .map(
@@ -4101,14 +4104,12 @@ function renderBusinessLineChart({
                   : index % 2 === 0
                     ? Math.max(12, point.y - 10)
                     : Math.min(height - paddingBottom - 6, point.y + 14);
-                const labelAnchor = isFirstPoint ? "start" : isLatestPoint ? "end" : "middle";
-                const labelDx = isFirstPoint ? 6 : isLatestPoint ? -6 : 0;
 
                 return `
-                ${highlightKeys.has(point.key) ? `<text class="startup-line-value" x="${point.x}" y="${labelY}" dx="${labelDx}" style="fill:${labelColor};font-weight:${isLatestPoint ? 800 : 700};text-anchor:${labelAnchor};">${formatNumber(point.value, labelDigits)}</text>` : ""}
-                ${highlightKeys.has(point.key) ? `<circle class="startup-line-point" cx="${point.x}" cy="${point.y}" r="${pointRadius}" style="fill:${pointFill};stroke-width:${isLatestPoint ? 2.5 : 2};">
+                ${highlightKeys.has(point.key) ? `<text class="startup-line-value" x="${point.x}" y="${labelY}" style="fill:${labelColor};font-weight:${isLatestPoint ? 800 : 700};">${formatNumber(point.value, labelDigits)}</text>` : ""}
+                <circle class="startup-line-point" cx="${point.x}" cy="${point.y}" r="${pointRadius}" style="fill:${pointFill};stroke-width:${isLatestPoint ? 2.5 : 2};">
                   <title>${point.label} ${formatNumber(point.value, labelDigits)}</title>
-                </circle>` : ""}
+                </circle>
               `;
               },
             )
@@ -4118,20 +4119,12 @@ function renderBusinessLineChart({
           ${plotted
             .map((point, index) => {
               const isLatest = index === plotted.length - 1;
-              const isFirst = index === 0;
               const latestYear = plotted[plotted.length - 1]?.key?.slice(0, 4);
               const pointYear = point.key?.slice(0, 4);
               const label = !isLatest && pointYear === latestYear
                 ? ""
                 : formatBusinessAxisLabel(point.key, isLatest);
-              const classes = ["startup-line-year"];
-              if (isFirst) {
-                classes.push("is-first");
-              }
-              if (isLatest) {
-                classes.push("is-last");
-              }
-              return `<div class="${classes.join(" ")}" style="left:${(point.x / width) * 100}%;">${label}</div>`;
+              return `<div class="startup-line-year">${label}</div>`;
             })
             .join("")}
         </div>
@@ -4163,19 +4156,10 @@ function renderProductionSummary() {
   const summary = document.getElementById("production-summary");
 
   if (!productionSeries.length && !serviceProductionSeries.length) {
-    if (!businessHasLoaded && !productionLoadError) {
-      summary.innerHTML = `
-        <article class="startup-summary-card">
-          <div class="startup-value startup-value--loading">생산지수 데이터를 불러오는 중입니다.</div>
-        </article>
-      `;
-      return;
-    }
-
     summary.innerHTML = `
       <article class="startup-summary-card">
         <div class="startup-value">생산지수 데이터를 불러오지 못했습니다.</div>
-        <div class="startup-subvalue">${productionLoadError || "로컬 JSON 데이터 구성을 확인해 주세요."}</div>
+        <div class="startup-subvalue">${productionLoadError || "KOSIS OpenAPI 설정을 확인해 주세요."}</div>
       </article>
     `;
     return;
@@ -4213,15 +4197,14 @@ function renderProductionLineChart({ title, subtitle = "", unitLabel = "", point
   const range = maxValue - minValue || 1;
   const width = 320;
   const height = 150;
-  const paddingLeft = 24;
-  const paddingRight = 36;
+  const paddingX = 22;
   const paddingTop = 26;
   const paddingBottom = 18;
-  const usableWidth = width - paddingLeft - paddingRight;
+  const usableWidth = width - paddingX * 2;
   const usableHeight = height - paddingTop - paddingBottom;
 
   const plotted = points.map((item, index) => ({
-    x: points.length === 1 ? (paddingLeft + width - paddingRight) / 2 : paddingLeft + (usableWidth / (points.length - 1)) * index,
+    x: points.length === 1 ? width / 2 : paddingX + (usableWidth / (points.length - 1)) * index,
     y: paddingTop + (1 - (item.value - minValue) / range) * usableHeight,
     value: item.value,
     label: formatQuarterPeriod(item.key),
@@ -4251,10 +4234,10 @@ function renderProductionLineChart({ title, subtitle = "", unitLabel = "", point
           <span class="startup-chart-summary-item is-yellow">최근: ${formatSummaryValue(latestPoint)}</span>
         </div>
       </div>
-      <div class="startup-line-chart">
+      <div class="startup-line-chart" style="--bar-count:${points.length};">
         ${unitLabel ? `<div class="startup-line-unit">(단위: ${unitLabel})</div>` : ""}
         <svg class="startup-line-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">
-          <line class="startup-line-grid" x1="${paddingLeft}" y1="${height - paddingBottom}" x2="${width - paddingRight}" y2="${height - paddingBottom}"></line>
+          <line class="startup-line-grid" x1="${paddingX}" y1="${height - paddingBottom}" x2="${width - paddingX}" y2="${height - paddingBottom}"></line>
           <path class="startup-line-path" d="${path}" style="stroke:${color};"></path>
           ${plotted
             .map((point, index) => {
@@ -4275,30 +4258,19 @@ function renderProductionLineChart({ title, subtitle = "", unitLabel = "", point
               const labelY = index % 2 === 0
                 ? Math.max(12, point.y - 10)
                 : Math.min(height - paddingBottom - 6, point.y + 14);
-              const labelAnchor = isFirstPoint ? "start" : isLatestPoint ? "end" : "middle";
-              const labelDx = isFirstPoint ? 6 : isLatestPoint ? -6 : 0;
 
               return `
-                ${highlightKeys.has(point.key) ? `<text class="startup-line-value" x="${point.x}" y="${labelY}" dx="${labelDx}" style="fill:${labelColor};font-weight:${isLatestPoint ? 800 : 700};text-anchor:${labelAnchor};">${point.value > 0 ? "+" : point.value < 0 ? "-" : ""}${formatNumber(Math.abs(point.value), 1)}%</text>` : ""}
-                ${highlightKeys.has(point.key) ? `<circle class="startup-line-point" cx="${point.x}" cy="${point.y}" r="${pointRadius}" style="fill:${pointFill};stroke-width:${isLatestPoint ? 2.5 : 2};">
+                ${highlightKeys.has(point.key) ? `<text class="startup-line-value" x="${point.x}" y="${labelY}" style="fill:${labelColor};font-weight:${isLatestPoint ? 800 : 700};">${point.value > 0 ? "+" : point.value < 0 ? "-" : ""}${formatNumber(Math.abs(point.value), 1)}%</text>` : ""}
+                <circle class="startup-line-point" cx="${point.x}" cy="${point.y}" r="${pointRadius}" style="fill:${pointFill};stroke-width:${isLatestPoint ? 2.5 : 2};">
                   <title>${point.label} ${formatSummaryValue(point)}</title>
-                </circle>` : ""}
+                </circle>
               `;
             })
             .join("")}
         </svg>
         <div class="startup-line-years">
           ${plotted
-            .map((point, index) => {
-              const classes = ["startup-line-year"];
-              if (index === 0) {
-                classes.push("is-first");
-              }
-              if (index === plotted.length - 1) {
-                classes.push("is-last");
-              }
-              return `<div class="${classes.join(" ")}" style="left:${(point.x / width) * 100}%;">${formatQuarterAxisLabel(point.key, index === plotted.length - 1)}</div>`;
-            })
+            .map((point, index) => `<div class="startup-line-year">${formatQuarterAxisLabel(point.key, index === plotted.length - 1)}</div>`)
             .join("")}
         </div>
       </div>
@@ -4338,19 +4310,10 @@ function renderOperationSummary() {
   const summary = document.getElementById("operation-summary");
 
   if (!operationRateSeries.length) {
-    if (!businessHasLoaded && !operationLoadError) {
-      summary.innerHTML = `
-        <article class="startup-summary-card">
-          <div class="startup-value startup-value--loading">평균가동률 데이터를 불러오는 중입니다.</div>
-        </article>
-      `;
-      return;
-    }
-
     summary.innerHTML = `
       <article class="startup-summary-card">
         <div class="startup-value">평균가동률 데이터를 불러오지 못했습니다.</div>
-        <div class="startup-subvalue">${operationLoadError || "로컬 JSON 데이터 구성을 확인해 주세요."}</div>
+        <div class="startup-subvalue">${operationLoadError || "KOSIS OpenAPI 설정을 확인해 주세요."}</div>
       </article>
     `;
     return;
@@ -4484,14 +4447,15 @@ function renderFeelingCharts() {
 
 async function refreshFeelingData() {
   const button = document.getElementById("feeling-refresh-button");
-  const previousText = button?.textContent || "새로고침";
-  if (button) {
-    button.disabled = true;
-    button.textContent = "갱신 중";
+  if (!button) {
+    return;
   }
 
+  const previousText = button.textContent || "새로고침";
+  button.disabled = true;
+  button.textContent = "갱신 중";
+
   try {
-    feelingIsLoading = true;
     feelingLoadError = "";
     const [actualRows, outlookRows] = await Promise.all([
       loadFeelingActualData(),
@@ -4512,11 +4476,8 @@ async function refreshFeelingData() {
     renderFeelingSummary();
     renderFeelingCharts();
   } finally {
-    feelingIsLoading = false;
-    if (button) {
-      button.disabled = false;
-      button.textContent = previousText;
-    }
+    button.disabled = false;
+    button.textContent = previousText;
   }
 }
 
@@ -4887,7 +4848,6 @@ async function refreshManagementData() {
   }
 
   try {
-    managementIsLoading = true;
     managementLoadError = "";
     managementHasLoaded = false;
     const [growthRows, profitRows, stabilityRows] = await Promise.all([
@@ -4920,7 +4880,6 @@ async function refreshManagementData() {
     renderManagementStabilitySummary();
     renderManagementStabilityCharts();
   } finally {
-    managementIsLoading = false;
     if (button) {
       button.disabled = false;
       button.textContent = previousText;
@@ -5816,9 +5775,18 @@ async function loadSmeData() {
     const [
       smeProfileData,
       startupRows,
-      loanPayload,
-      investmentPayload,
+      loanSheetRows,
+      delinquencySheetRows,
+      investmentSheetRows,
+      investmentStageSheetRows,
+      investmentSectorSheetRows,
+      investmentSourceSheetRows,
       exportPayload,
+      businessCompositeRows,
+      businessCycleRows,
+      productionRows,
+      serviceProductionRows,
+      operationRows,
     ] = await Promise.all([
       loadSmeProfileData().catch((error) => {
         smeLoadError = `오류: ${error.message}`;
@@ -5828,44 +5796,111 @@ async function loadSmeData() {
         startupLoadError = `오류: ${error.message}`;
         return [];
       }),
-      loadLoanData().catch((error) => {
-        loanLoadError = `오류: ${error.message}`;
-        return {
-          nextLoanSeries: [],
-          nextDelinquencySeries: [],
-          nextLoanYears: [],
-        };
+      loadGoogleSheetWithCache("", LOAN_SHEET_CACHE_KEY, {
+        baseUrl: LOAN_SHEET_BASE_URL,
+        openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
-      loadInvestmentData().catch((error) => {
-        investmentLoadError = `오류: ${error.message}`;
-        return {
-          investmentSeries: [],
-          investmentStageSeries: [],
-          investmentSectorSeries: [],
-          investmentSourceSeries: [],
-          investmentDates: [],
-        };
+      loadGoogleSheetWithCache("연체율", DELINQUENCY_SHEET_CACHE_KEY, {
+        baseUrl: LOAN_SHEET_BASE_URL,
+        openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
+      }),
+      loadGoogleSheetWithCache("투자", INVESTMENT_SHEET_CACHE_KEY, {
+        baseUrl: LOAN_SHEET_BASE_URL,
+        openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
+      }),
+      loadGoogleSheetWithCache("업력별투자", INVESTMENT_STAGE_SHEET_CACHE_KEY, {
+        baseUrl: LOAN_SHEET_BASE_URL,
+        openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
+      }),
+      loadGoogleSheetWithCache("업종별투자", INVESTMENT_SECTOR_SHEET_CACHE_KEY, {
+        baseUrl: LOAN_SHEET_BASE_URL,
+        openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
+      }),
+      loadGoogleSheetWithCache("출자자별", INVESTMENT_SOURCE_SHEET_CACHE_KEY, {
+        baseUrl: LOAN_SHEET_BASE_URL,
+        openSheetBaseUrl: LOAN_OPENSHEET_BASE_URL,
       }),
       loadExportData().catch((error) => {
         exportLoadError = `오류: ${error.message}`;
         return null;
       }),
+      loadBusinessCompositeData().catch((error) => {
+        businessLoadError = `오류: ${error.message}`;
+        return [];
+      }),
+      loadBusinessCycleData().catch((error) => {
+        businessLoadError = `오류: ${error.message}`;
+        return [];
+      }),
+      loadProductionData().catch((error) => {
+        productionLoadError = `오류: ${error.message}`;
+        return [];
+      }),
+      loadServiceProductionData().catch((error) => {
+        productionLoadError = `오류: ${error.message}`;
+        return [];
+      }),
+      loadOperationRateData().catch((error) => {
+        operationLoadError = `오류: ${error.message}`;
+        return [];
+      }),
     ]);
     const { nextData, nextYears } = smeProfileData;
     startupSeries = startupRows;
-    loanSeries = loanPayload.nextLoanSeries;
-    delinquencySeries = loanPayload.nextDelinquencySeries;
-    investmentSeries = investmentPayload.investmentSeries;
-    investmentStageSeries = investmentPayload.investmentStageSeries;
-    investmentSectorSeries = investmentPayload.investmentSectorSeries;
-    investmentSourceSeries = investmentPayload.investmentSourceSeries;
+    loanSeries = parseLoanRows(loanSheetRows);
+    delinquencySeries = parseDelinquencyRows(delinquencySheetRows);
+    investmentSeries = parseInvestmentRows(investmentSheetRows, [
+      "신규 벤처투자금액",
+      "피투자기업 수",
+      "기업당 투자금액",
+      "벤처펀드 결정금액",
+      "벤처펀드 결성 수",
+    ]);
+    investmentStageSeries = parseInvestmentRows(investmentStageSheetRows, [
+      "초기 투자(3년 이내)",
+      "중기 투자(3~7년 이내)",
+      "후기 투자(7년 초과)",
+    ]);
+    investmentSectorSeries = parseInvestmentRows(investmentSectorSheetRows, [
+      "ICT서비스",
+      "바이오·의료",
+      "전기·기계·장비",
+      "ICT제조",
+      "유통·서비스",
+      "화학·소재",
+      "영상·공연·음반",
+      "게임",
+      "기타",
+    ]);
+    investmentSourceSeries = parseInvestmentRows(investmentSourceSheetRows, [
+      "정책금융",
+      "모태펀드",
+      "성장금융",
+      "산업은행",
+      "기타 정책금융",
+      "민간부문",
+      "개인",
+      "일반법인",
+      "금융기관(산은 제외)",
+      "연기금 및 공제회",
+      "VC",
+      "기타단체 및 외국인",
+    ]);
     exportSeries = exportPayload?.series || [];
     exportCountrySeries = exportPayload?.countrySeries || [];
-    loanYears = loanPayload.nextLoanYears;
+    loanYears = [...new Set([...loanSeries.map((item) => item.year), ...delinquencySeries.map((item) => item.year)])].sort((a, b) => a - b);
     writeCachedLoanData();
-    investmentDates = investmentPayload.investmentDates;
+    investmentDates = investmentSeries.map((item) => item.key);
     writeCachedInvestmentData();
     exportDates = exportSeries.map((item) => item.key);
+    businessCompositeSeries = businessCompositeRows;
+    businessSeries = businessCycleRows;
+    businessDates = businessSeries.map((item) => item.key);
+    productionSeries = productionRows;
+    serviceProductionSeries = serviceProductionRows;
+    operationRateSeries = operationRows;
+    feelingActualSeries = [];
+    feelingOutlookSeries = [];
     smeData = nextData;
     smeYears = nextYears;
     writeCachedSmeProfileData(nextData, nextYears);
@@ -5879,13 +5914,6 @@ async function loadSmeData() {
     businessLoadError = businessLoadError || `오류: ${error.message}`;
     productionLoadError = productionLoadError || `오류: ${error.message}`;
     operationLoadError = operationLoadError || `오류: ${error.message}`;
-    businessHasLoaded = Boolean(
-      businessCompositeSeries.length
-      || businessSeries.length
-      || productionSeries.length
-      || serviceProductionSeries.length
-      || operationRateSeries.length
-    );
     syncDashboardUi();
     return;
 
@@ -5920,7 +5948,6 @@ async function loadSmeData() {
     businessLoadError = `오류: ${error.message}`;
     productionLoadError = `오류: ${error.message}`;
     operationLoadError = `오류: ${error.message}`;
-    businessHasLoaded = false;
     feelingLoadError = `오류: ${error.message}`;
     feelingHasLoaded = false;
     managementLoadError = `오류: ${error.message}`;
@@ -5985,18 +6012,11 @@ function setActiveTab(tabName) {
   if (tabName === "feeling" && !feelingHasLoaded) {
     hydrateFeelingFromCache();
     initFeelingBsiSelect();
-    if (!feelingIsLoading) {
-      refreshFeelingData();
-    }
+    refreshFeelingData();
   }
   if (tabName === "management" && !managementHasLoaded) {
     hydrateManagementFromCache();
-    if (!managementIsLoading) {
-      refreshManagementData();
-    }
-  }
-  if (tabName === "business" && !businessHasLoaded && !businessIsLoading) {
-    refreshBusinessData();
+    refreshManagementData();
   }
 }
 
