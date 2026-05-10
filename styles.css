@@ -240,6 +240,14 @@ h1 {
   line-height: 1;
 }
 
+.page-refresh-wrap,
+.section-refresh-wrap,
+.icon-refresh-button,
+.section-refresh-button,
+.sme-refresh-button-instance {
+  display: none !important;
+}
+
 h2 {
   font-size: 18px;
   line-height: 1.2;

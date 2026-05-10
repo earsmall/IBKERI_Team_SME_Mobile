@@ -179,6 +179,47 @@ function getStaticRowsByCacheKey(cacheKey) {
   return source ? getStaticDashboardRows(source[0], source[1]) : [];
 }
 
+function getRawRowIdentity(row) {
+  return [
+    row?.TBL_ID || row?.TBL_NM || "",
+    row?.ITM_ID || row?.ITM_NM || "",
+    row?.C1 || row?.C1_NM || row?.C1_OBJ_NM || "",
+    row?.C2 || row?.C2_NM || "",
+    row?.C3 || row?.C3_NM || "",
+    row?.PRD_DE || row?.시점 || row?.A || row?.[""] || "",
+  ].map((value) => String(value ?? "").trim()).join("|");
+}
+
+function mergeRawRows(baseRows, updateRows) {
+  const merged = new Map();
+  [...(Array.isArray(baseRows) ? baseRows : []), ...(Array.isArray(updateRows) ? updateRows : [])]
+    .filter((row) => row && typeof row === "object")
+    .forEach((row) => {
+      merged.set(getRawRowIdentity(row), row);
+    });
+  return Array.from(merged.values());
+}
+
+function mergeSeriesRows(baseRows, updateRows) {
+  const merged = new Map();
+  [...(Array.isArray(baseRows) ? baseRows : []), ...(Array.isArray(updateRows) ? updateRows : [])]
+    .filter((row) => row && typeof row === "object")
+    .forEach((row) => {
+      const identity = [
+        row.key || row.year || formatDateKey(row.date) || "",
+        row.category || "",
+        row.itemName || "",
+        row.bsiName || row.bsiBaseName || "",
+      ].map((value) => String(value ?? "").trim()).join("|");
+      merged.set(identity, row);
+    });
+  return Array.from(merged.values()).sort((a, b) => {
+    const left = String(a.key || a.year || formatDateKey(a.date) || "");
+    const right = String(b.key || b.year || formatDateKey(b.date) || "");
+    return left.localeCompare(right);
+  });
+}
+
 function formatClock(date = new Date()) {
   return new Intl.DateTimeFormat("ko-KR", {
     hour: "2-digit",
@@ -583,15 +624,12 @@ function buildSmeDataset(metricRows) {
 
 function readSmeMetricSnapshot(cacheKey) {
   const staticRows = getStaticRowsByCacheKey(cacheKey);
-  if (staticRows.length) {
-    return staticRows;
-  }
 
   try {
     const raw = window.localStorage.getItem(cacheKey);
-    return raw ? JSON.parse(raw) : [];
+    return mergeRawRows(raw ? JSON.parse(raw) : [], staticRows);
   } catch (error) {
-    return [];
+    return staticRows;
   }
 }
 
@@ -634,19 +672,15 @@ async function loadSmeMetricApi(url, cacheKey) {
 }
 
 function createSmeProfileDataset(smeCountRows, smeEmployeeRows, smeSalesRows) {
-  return buildSmeDataset([
+  const basePayload = buildSmeDataset([
     { rows: smeCountRows, config: { title: "湲곗뾽??", unit: "媛?", color: "#2c7be5" } },
     { rows: smeEmployeeRows, config: { title: "醫낆궗?먯닔", unit: "紐?", color: "#4a9bff" } },
     { rows: smeSalesRows, config: { title: "留ㅼ텧??", unit: "諛깅쭔??", color: "#7fb8ff" } },
   ]);
+  return mergeSmeProfileDataset(basePayload, getStaticDashboardFile("sme_profile.json"));
 }
 
 function readCachedSmeProfileData() {
-  const staticPayload = getStaticDashboardFile("sme_profile.json");
-  if (Array.isArray(staticPayload?.nextData) && Array.isArray(staticPayload?.nextYears)) {
-    return staticPayload;
-  }
-
   try {
     const raw = window.localStorage.getItem(SME_PROFILE_CACHE_KEY);
     if (raw) {
@@ -687,23 +721,46 @@ function writeCachedSmeProfileData(nextData, nextYears) {
   }
 }
 
-async function loadSmeProfileData() {
-  const staticPayload = getStaticDashboardFile("sme_profile.json");
-  if (Array.isArray(staticPayload?.nextData) && Array.isArray(staticPayload?.nextYears)) {
-    return staticPayload;
+function mergeSmeProfileDataset(basePayload, updatePayload) {
+  if (!Array.isArray(updatePayload?.nextData)) {
+    return basePayload;
   }
 
+  const byTitle = new Map((basePayload?.nextData || []).map((item) => [
+    item.title,
+    { ...item, years: { ...(item.years || {}) } },
+  ]));
+  updatePayload.nextData.forEach((item) => {
+    if (!item?.title) {
+      return;
+    }
+    const existing = byTitle.get(item.title) || { title: item.title, years: {} };
+    byTitle.set(item.title, {
+      ...existing,
+      ...item,
+      years: { ...(existing.years || {}), ...(item.years || {}) },
+    });
+  });
+  const nextData = Array.from(byTitle.values());
+  return {
+    nextData,
+    nextYears: [...new Set(nextData.flatMap((item) => Object.keys(item.years || {})))].sort(),
+  };
+}
+
+async function loadSmeProfileData() {
   const [smeCountRows, smeEmployeeRows, smeSalesRows] = await Promise.all([
     loadSmeMetricApi(SME_COUNT_API_URL, SME_COUNT_CACHE_KEY),
     loadSmeMetricApi(SME_EMPLOYEE_API_URL, SME_EMPLOYEE_CACHE_KEY),
     loadSmeMetricApi(SME_SALES_API_URL, SME_SALES_CACHE_KEY),
   ]);
 
-  return buildSmeDataset([
+  const basePayload = buildSmeDataset([
     { rows: smeCountRows, config: { title: "기업수", unit: "개", color: "#2c7be5" } },
     { rows: smeEmployeeRows, config: { title: "종사자수", unit: "명", color: "#4a9bff" } },
     { rows: smeSalesRows, config: { title: "매출액", unit: "백만원", color: "#7fb8ff" } },
   ]);
+  return mergeSmeProfileDataset(basePayload, getStaticDashboardFile("sme_profile.json"));
 }
 
 function getSmeIndustryTopFive(item, year) {
@@ -1066,19 +1123,16 @@ function parseStartupRows(rows) {
 
 function readStartupSnapshot() {
   const staticRows = getStaticRowsByCacheKey(STARTUP_CACHE_KEY);
-  if (staticRows.length) {
-    return parseStartupRows(staticRows);
-  }
 
   try {
     const raw = window.localStorage.getItem(STARTUP_CACHE_KEY);
     if (!raw) {
-      return [];
+      return parseStartupRows(staticRows);
     }
 
-    return parseStartupRows(JSON.parse(raw));
+    return parseStartupRows(mergeRawRows(JSON.parse(raw), staticRows));
   } catch (error) {
-    return [];
+    return parseStartupRows(staticRows);
   }
 }
 
@@ -1092,10 +1146,6 @@ function writeStartupSnapshot(rows) {
 
 async function loadStartupData() {
   const staticRows = getStaticRowsByCacheKey(STARTUP_CACHE_KEY);
-  if (staticRows.length) {
-    return parseStartupRows(staticRows);
-  }
-
   try {
     let payload;
 
@@ -1113,7 +1163,8 @@ async function loadStartupData() {
       throw new Error("KOSIS 창업 데이터 형식을 확인해 주세요.");
     }
 
-    const rows = parseStartupRows(payload);
+    const mergedPayload = mergeRawRows(payload, staticRows);
+    const rows = parseStartupRows(mergedPayload);
     writeStartupSnapshot(payload);
     return rows;
   } catch (error) {
@@ -1402,10 +1453,6 @@ function parseManagementGrowthRows(rows) {
 
 async function loadBusinessCycleData() {
   const staticRows = getStaticDashboardRows("business.json", "businessCycleRows");
-  if (staticRows.length) {
-    return parseBusinessRows(staticRows);
-  }
-
   try {
     const payload = await fetchJson(BUSINESS_CYCLE_API_URL);
 
@@ -1417,18 +1464,17 @@ async function loadBusinessCycleData() {
       throw new Error("KOSIS 경기 데이터 형식을 확인해 주세요.");
     }
 
-    return parseBusinessRows(payload);
+    return parseBusinessRows(mergeRawRows(payload, staticRows));
   } catch (error) {
-    return parseBusinessSnapshot(BUSINESS_CYCLE_SNAPSHOT, "동행지수 순환변동치");
+    return mergeSeriesRows(
+      parseBusinessSnapshot(BUSINESS_CYCLE_SNAPSHOT, "동행지수 순환변동치"),
+      parseBusinessRows(staticRows),
+    );
   }
 }
 
 async function loadBusinessCompositeData() {
   const staticRows = getStaticDashboardRows("business.json", "businessCompositeRows");
-  if (staticRows.length) {
-    return parseBusinessRows(staticRows);
-  }
-
   try {
     const payload = await fetchJson(BUSINESS_COMPOSITE_API_URL);
 
@@ -1440,18 +1486,17 @@ async function loadBusinessCompositeData() {
       throw new Error("KOSIS 경기 데이터 형식을 확인해 주세요.");
     }
 
-    return parseBusinessRows(payload);
+    return parseBusinessRows(mergeRawRows(payload, staticRows));
   } catch (error) {
-    return parseBusinessSnapshot(BUSINESS_COMPOSITE_SNAPSHOT, "동행종합지수");
+    return mergeSeriesRows(
+      parseBusinessSnapshot(BUSINESS_COMPOSITE_SNAPSHOT, "동행종합지수"),
+      parseBusinessRows(staticRows),
+    );
   }
 }
 
 async function loadProductionData() {
   const staticRows = getStaticDashboardRows("business.json", "productionRows");
-  if (staticRows.length) {
-    return parseProductionRows(staticRows);
-  }
-
   try {
     const payload = await fetchJson(PRODUCTION_API_URL);
 
@@ -1463,18 +1508,17 @@ async function loadProductionData() {
       throw new Error("KOSIS 생산지수 데이터 형식을 확인해 주세요.");
     }
 
-    return parseProductionRows(payload);
+    return parseProductionRows(mergeRawRows(payload, staticRows));
   } catch (error) {
-    return parseProductionSnapshot(PRODUCTION_SNAPSHOT, "중소기업생산지수");
+    return mergeSeriesRows(
+      parseProductionSnapshot(PRODUCTION_SNAPSHOT, "중소기업생산지수"),
+      parseProductionRows(staticRows),
+    );
   }
 }
 
 async function loadServiceProductionData() {
   const staticRows = getStaticDashboardRows("business.json", "serviceProductionRows");
-  if (staticRows.length) {
-    return parseProductionRows(staticRows);
-  }
-
   try {
     const payload = await fetchJson(SERVICE_PRODUCTION_API_URL);
 
@@ -1486,18 +1530,17 @@ async function loadServiceProductionData() {
       throw new Error("KOSIS 서비스업 생산지수 데이터 형식을 확인해 주세요.");
     }
 
-    return parseProductionRows(payload);
+    return parseProductionRows(mergeRawRows(payload, staticRows));
   } catch (error) {
-    return parseProductionSnapshot(SERVICE_PRODUCTION_SNAPSHOT, "중소기업서비스업생산지수");
+    return mergeSeriesRows(
+      parseProductionSnapshot(SERVICE_PRODUCTION_SNAPSHOT, "중소기업서비스업생산지수"),
+      parseProductionRows(staticRows),
+    );
   }
 }
 
 async function loadOperationRateData() {
   const staticRows = getStaticDashboardRows("business.json", "operationRows");
-  if (staticRows.length) {
-    return parseOperationRows(staticRows);
-  }
-
   try {
     const payload = await fetchJson(OPERATION_RATE_API_URL);
 
@@ -1509,30 +1552,30 @@ async function loadOperationRateData() {
       throw new Error("KOSIS 평균가동률 데이터 형식을 확인해 주세요.");
     }
 
-    return parseOperationRows(payload);
+    return parseOperationRows(mergeRawRows(payload, staticRows));
   } catch (error) {
-    return parseOperationSnapshot(OPERATION_RATE_SNAPSHOT, "제조업 계절조정");
+    return mergeSeriesRows(
+      parseOperationSnapshot(OPERATION_RATE_SNAPSHOT, "제조업 계절조정"),
+      parseOperationRows(staticRows),
+    );
   }
 }
 
 function readFeelingSnapshot(cacheKey) {
   const staticRows = getStaticRowsByCacheKey(cacheKey);
-  if (staticRows.length) {
-    return parseFeelingRows(staticRows);
-  }
 
   try {
     const raw = window.localStorage.getItem(cacheKey);
     if (!raw) {
-      return [];
+      return parseFeelingRows(staticRows);
     }
 
     const payload = JSON.parse(raw);
     if (!Array.isArray(payload)) {
-      return [];
+      return parseFeelingRows(staticRows);
     }
 
-    return payload
+    const cachedRows = payload
       .map((item) => ({
         key: String(item?.key || "").trim(),
         date: parseBusinessPeriod(item?.key),
@@ -1549,8 +1592,9 @@ function readFeelingSnapshot(cacheKey) {
         }
         return a.bsiName.localeCompare(b.bsiName);
       });
+    return mergeSeriesRows(cachedRows, parseFeelingRows(staticRows));
   } catch (error) {
-    return [];
+    return parseFeelingRows(staticRows);
   }
 }
 
@@ -1595,9 +1639,6 @@ function hydrateFeelingFromCache() {
 
 async function loadFeelingSeries({ url, cacheKey }) {
   const staticRows = getStaticRowsByCacheKey(cacheKey);
-  if (staticRows.length) {
-    return parseFeelingRows(staticRows);
-  }
 
   try {
     let payload;
@@ -1616,7 +1657,7 @@ async function loadFeelingSeries({ url, cacheKey }) {
       throw new Error("KOSIS 기업심리지수 데이터 형식을 확인해 주세요.");
     }
 
-    const rows = parseFeelingRows(payload);
+    const rows = parseFeelingRows(mergeRawRows(payload, staticRows));
     writeFeelingSnapshot(cacheKey, rows);
     return rows;
   } catch (error) {
@@ -1645,19 +1686,16 @@ async function loadFeelingOutlookData() {
 
 function readManagementGrowthSnapshot() {
   const staticRows = getStaticRowsByCacheKey(MANAGEMENT_GROWTH_CACHE_KEY);
-  if (staticRows.length) {
-    return parseManagementGrowthRows(staticRows);
-  }
 
   try {
     const raw = window.localStorage.getItem(MANAGEMENT_GROWTH_CACHE_KEY);
     if (!raw) {
-      return [];
+      return parseManagementGrowthRows(staticRows);
     }
 
-    return parseManagementGrowthRows(JSON.parse(raw));
+    return mergeSeriesRows(parseManagementGrowthRows(JSON.parse(raw)), parseManagementGrowthRows(staticRows));
   } catch (error) {
-    return [];
+    return parseManagementGrowthRows(staticRows);
   }
 }
 
@@ -1671,9 +1709,6 @@ function writeManagementGrowthSnapshot(rows) {
 
 async function loadManagementGrowthData() {
   const staticRows = getStaticRowsByCacheKey(MANAGEMENT_GROWTH_CACHE_KEY);
-  if (staticRows.length) {
-    return parseManagementGrowthRows(staticRows);
-  }
 
   try {
     let payload;
@@ -1692,7 +1727,7 @@ async function loadManagementGrowthData() {
       throw new Error("KOSIS 경영지표 데이터 형식을 확인해 주세요.");
     }
 
-    const rows = parseManagementGrowthRows(payload);
+    const rows = parseManagementGrowthRows(mergeRawRows(payload, staticRows));
     writeManagementGrowthSnapshot(rows);
     return rows;
   } catch (error) {
@@ -1707,19 +1742,16 @@ async function loadManagementGrowthData() {
 
 function readManagementMetricSnapshot(cacheKey) {
   const staticRows = getStaticRowsByCacheKey(cacheKey);
-  if (staticRows.length) {
-    return parseManagementGrowthRows(staticRows);
-  }
 
   try {
     const raw = window.localStorage.getItem(cacheKey);
     if (!raw) {
-      return [];
+      return parseManagementGrowthRows(staticRows);
     }
 
-    return parseManagementGrowthRows(JSON.parse(raw));
+    return mergeSeriesRows(parseManagementGrowthRows(JSON.parse(raw)), parseManagementGrowthRows(staticRows));
   } catch (error) {
-    return [];
+    return parseManagementGrowthRows(staticRows);
   }
 }
 
@@ -1733,9 +1765,6 @@ function writeManagementMetricSnapshot(cacheKey, rows) {
 
 async function loadManagementMetricData(url, cacheKey) {
   const staticRows = getStaticRowsByCacheKey(cacheKey);
-  if (staticRows.length) {
-    return parseManagementGrowthRows(staticRows);
-  }
 
   try {
     let payload;
@@ -1754,7 +1783,7 @@ async function loadManagementMetricData(url, cacheKey) {
       throw new Error("KOSIS 경영지표 데이터 형식을 확인해 주세요.");
     }
 
-    const rows = parseManagementGrowthRows(payload);
+    const rows = parseManagementGrowthRows(mergeRawRows(payload, staticRows));
     writeManagementMetricSnapshot(cacheKey, rows);
     return rows;
   } catch (error) {
@@ -2692,9 +2721,6 @@ function writeExportSnapshot(cacheKey, rows) {
 
 async function loadExportApi(url, cacheKey) {
   const staticRows = getStaticRowsByCacheKey(cacheKey);
-  if (staticRows.length) {
-    return staticRows;
-  }
 
   try {
     let payload;
@@ -2713,8 +2739,9 @@ async function loadExportApi(url, cacheKey) {
       throw new Error("KOSIS 수출 데이터 형식을 확인해 주세요.");
     }
 
-    writeExportSnapshot(cacheKey, payload);
-    return payload;
+    const rows = mergeRawRows(payload, staticRows);
+    writeExportSnapshot(cacheKey, rows);
+    return rows;
   } catch (error) {
     const cachedRows = readExportSnapshot(cacheKey);
     if (cachedRows.length) {
