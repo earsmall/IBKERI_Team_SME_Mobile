@@ -480,6 +480,11 @@ function writeSheetSnapshot(cacheKey, rows) {
 }
 
 async function loadGoogleSheetWithCache(sheetName, cacheKey, options = {}) {
+  const staticRows = getStaticRowsByCacheKey(cacheKey);
+  if (staticRows.length) {
+    return staticRows;
+  }
+
   try {
     const rows = await loadGoogleSheet(sheetName, options);
     writeSheetSnapshot(cacheKey, rows);
@@ -577,6 +582,11 @@ function buildSmeDataset(metricRows) {
 }
 
 function readSmeMetricSnapshot(cacheKey) {
+  const staticRows = getStaticRowsByCacheKey(cacheKey);
+  if (staticRows.length) {
+    return staticRows;
+  }
+
   try {
     const raw = window.localStorage.getItem(cacheKey);
     return raw ? JSON.parse(raw) : [];
@@ -678,6 +688,11 @@ function writeCachedSmeProfileData(nextData, nextYears) {
 }
 
 async function loadSmeProfileData() {
+  const staticPayload = getStaticDashboardFile("sme_profile.json");
+  if (Array.isArray(staticPayload?.nextData) && Array.isArray(staticPayload?.nextYears)) {
+    return staticPayload;
+  }
+
   const [smeCountRows, smeEmployeeRows, smeSalesRows] = await Promise.all([
     loadSmeMetricApi(SME_COUNT_API_URL, SME_COUNT_CACHE_KEY),
     loadSmeMetricApi(SME_EMPLOYEE_API_URL, SME_EMPLOYEE_CACHE_KEY),
@@ -1076,6 +1091,11 @@ function writeStartupSnapshot(rows) {
 }
 
 async function loadStartupData() {
+  const staticRows = getStaticRowsByCacheKey(STARTUP_CACHE_KEY);
+  if (staticRows.length) {
+    return parseStartupRows(staticRows);
+  }
+
   try {
     let payload;
 
@@ -1650,6 +1670,11 @@ function writeManagementGrowthSnapshot(rows) {
 }
 
 async function loadManagementGrowthData() {
+  const staticRows = getStaticRowsByCacheKey(MANAGEMENT_GROWTH_CACHE_KEY);
+  if (staticRows.length) {
+    return parseManagementGrowthRows(staticRows);
+  }
+
   try {
     let payload;
 
@@ -1707,6 +1732,11 @@ function writeManagementMetricSnapshot(cacheKey, rows) {
 }
 
 async function loadManagementMetricData(url, cacheKey) {
+  const staticRows = getStaticRowsByCacheKey(cacheKey);
+  if (staticRows.length) {
+    return parseManagementGrowthRows(staticRows);
+  }
+
   try {
     let payload;
 
@@ -2309,6 +2339,18 @@ function parseInvestmentRows(rows, valueKeys) {
 }
 
 function readCachedLoanData() {
+  const staticLoanRows = getStaticRowsByCacheKey(LOAN_SHEET_CACHE_KEY);
+  const staticDelinquencyRows = getStaticRowsByCacheKey(DELINQUENCY_SHEET_CACHE_KEY);
+  if (staticLoanRows.length || staticDelinquencyRows.length) {
+    const nextLoanSeries = parseLoanRows(staticLoanRows);
+    const nextDelinquencySeries = parseDelinquencyRows(staticDelinquencyRows);
+    return {
+      loanSeries: nextLoanSeries,
+      delinquencySeries: nextDelinquencySeries,
+      loanYears: [...new Set([...nextLoanSeries.map((item) => item.year), ...nextDelinquencySeries.map((item) => item.year)])].sort((a, b) => a - b),
+    };
+  }
+
   const payload = readProcessedSnapshot(LOAN_DATA_CACHE_KEY);
   if (!payload) {
     return null;
@@ -2338,6 +2380,57 @@ function writeCachedLoanData() {
 }
 
 function readCachedInvestmentData() {
+  const staticInvestmentRows = getStaticRowsByCacheKey(INVESTMENT_SHEET_CACHE_KEY);
+  const staticStageRows = getStaticRowsByCacheKey(INVESTMENT_STAGE_SHEET_CACHE_KEY);
+  const staticSectorRows = getStaticRowsByCacheKey(INVESTMENT_SECTOR_SHEET_CACHE_KEY);
+  const staticSourceRows = getStaticRowsByCacheKey(INVESTMENT_SOURCE_SHEET_CACHE_KEY);
+  if (staticInvestmentRows.length || staticStageRows.length || staticSectorRows.length || staticSourceRows.length) {
+    const nextInvestmentSeries = parseInvestmentRows(staticInvestmentRows, [
+      "신규 벤처투자금액",
+      "피투자기업 수",
+      "기업당 투자금액",
+      "벤처펀드 결정금액",
+      "벤처펀드 결성 수",
+    ]);
+    const nextInvestmentStageSeries = parseInvestmentRows(staticStageRows, [
+      "초기 투자(3년 이내)",
+      "중기 투자(3~7년 이내)",
+      "후기 투자(7년 초과)",
+    ]);
+    const nextInvestmentSectorSeries = parseInvestmentRows(staticSectorRows, [
+      "ICT서비스",
+      "바이오·의료",
+      "전기·기계·장비",
+      "ICT제조",
+      "유통·서비스",
+      "화학·소재",
+      "영상·공연·음반",
+      "게임",
+      "기타",
+    ]);
+    const nextInvestmentSourceSeries = parseInvestmentRows(staticSourceRows, [
+      "정책금융",
+      "모태펀드",
+      "성장금융",
+      "산업은행",
+      "기타 정책금융",
+      "민간부문",
+      "개인",
+      "일반법인",
+      "금융기관(산은 제외)",
+      "연기금 및 공제회",
+      "VC",
+      "기타단체 및 외국인",
+    ]);
+    return {
+      investmentSeries: nextInvestmentSeries,
+      investmentStageSeries: nextInvestmentStageSeries,
+      investmentSectorSeries: nextInvestmentSectorSeries,
+      investmentSourceSeries: nextInvestmentSourceSeries,
+      investmentDates: nextInvestmentSeries.map((item) => item.key),
+    };
+  }
+
   const payload = readProcessedSnapshot(INVESTMENT_DATA_CACHE_KEY);
   if (!payload) {
     return null;
@@ -2598,6 +2691,11 @@ function writeExportSnapshot(cacheKey, rows) {
 }
 
 async function loadExportApi(url, cacheKey) {
+  const staticRows = getStaticRowsByCacheKey(cacheKey);
+  if (staticRows.length) {
+    return staticRows;
+  }
+
   try {
     let payload;
 
