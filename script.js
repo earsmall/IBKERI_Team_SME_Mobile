@@ -3798,19 +3798,7 @@ function getBusinessChartSeries() {
     return [];
   }
 
-  const fullYears = [...new Set(
-    businessSeries
-      .filter((item) => item.key.endsWith("12"))
-      .map((item) => Number(item.key.slice(0, 4))),
-  )];
-  const lastThreeFullYears = fullYears.slice(-3);
-
-  if (!lastThreeFullYears.length) {
-    return businessSeries;
-  }
-
-  const startYear = lastThreeFullYears[0];
-  return businessSeries.filter((item) => Number(item.key.slice(0, 4)) >= startYear);
+  return businessSeries.filter((item) => Number(item.key.slice(0, 4)) >= 2024);
 }
 
 function getProductionRecord(key) {
@@ -3921,19 +3909,7 @@ function getFeelingChartSeries() {
     return [];
   }
 
-  const fullYears = [...new Set(
-    filteredSeries
-      .filter((item) => item.key.endsWith("12"))
-      .map((item) => Number(item.key.slice(0, 4))),
-  )];
-  const lastThreeFullYears = fullYears.slice(-3);
-
-  if (!lastThreeFullYears.length) {
-    return filteredSeries;
-  }
-
-  const startYear = lastThreeFullYears[0];
-  return filteredSeries.filter((item) => Number(item.key.slice(0, 4)) >= startYear);
+  return filteredSeries.filter((item) => Number(item.key.slice(0, 4)) >= 2024);
 }
 
 function getFeelingOptions() {
@@ -3952,19 +3928,7 @@ function getFeelingOutlookChartSeries() {
     return [];
   }
 
-  const fullYears = [...new Set(
-    filteredSeries
-      .filter((item) => item.key.endsWith("12"))
-      .map((item) => Number(item.key.slice(0, 4))),
-  )];
-  const lastThreeFullYears = fullYears.slice(-3);
-
-  if (!lastThreeFullYears.length) {
-    return filteredSeries;
-  }
-
-  const startYear = lastThreeFullYears[0];
-  return filteredSeries.filter((item) => Number(item.key.slice(0, 4)) >= startYear);
+  return filteredSeries.filter((item) => Number(item.key.slice(0, 4)) >= 2024);
 }
 
 function getFeelingSelectedLabel(type = "actual") {
@@ -4268,7 +4232,7 @@ function renderBusinessCharts() {
 
   charts.innerHTML = [
     renderBusinessLineChart({
-      title: "중소기업 경기동행종합지수 순환변동치(최근 3년)",
+      title: "중소기업 경기동행종합지수 순환변동치",
       points: getBusinessChartSeries(),
       color: "#143f6b",
     }),
@@ -4522,7 +4486,7 @@ function renderFeelingSummary() {
       </div>
     </article>
     ${renderBusinessLineChart({
-      title: `${selectedActualLabel} 실적(최근 3년)`,
+      title: `${selectedActualLabel} 실적`,
       points: getFeelingChartSeries(),
       color: "#5c6ac4",
       labelDigits: 0,
@@ -4546,7 +4510,7 @@ function renderFeelingSummary() {
       </div>
     </article>
     ${renderBusinessLineChart({
-      title: `${selectedOutlookLabel} 전망(최근 3년)`,
+      title: `${selectedOutlookLabel} 전망`,
       points: getFeelingOutlookChartSeries(),
       color: "#3b82f6",
       labelDigits: 0,
